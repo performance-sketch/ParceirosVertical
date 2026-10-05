@@ -16,7 +16,10 @@ Portal para parceiros da Vertical Rio acompanharem as reservas **confirmadas no 
 `config.json`
 - `comissao_pct` — percentual de comissão sobre a receita bruta (único para todos)
 - `data_inicio` — reservas criadas a partir desta data
-- `parceiros` — `login → { nome, cupons[] }`
+- `admins` — logins com visão de todos os parceiros
+
+Ciclo de análise: dia 26 do mês anterior ao dia 25 do mês (ex.: Setembro = 26/08–25/09).
+- `parceiros` — `login → { nome, tipo, cupons[], pedidos[] }` (`pedidos`: números de pedido Rezdy sem cupom atribuídos ao parceiro, ex.: guias)
 
 Secrets do repositório (Settings → Secrets → Actions)
 - `REZDY_API_KEY`

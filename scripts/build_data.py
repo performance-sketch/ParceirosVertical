@@ -73,12 +73,13 @@ def buscar_reservas(api_key, data_inicio):
     return todas
 
 
-def extrair_reservas_cupom(reservas, data_inicio):
-    """Somente CONFIRMED com cupom. Sem dados pessoais do cliente (LGPD)."""
+def extrair_reservas_cupom(reservas, data_inicio, pedidos=frozenset()):
+    """Somente CONFIRMED com cupom (ou pedido atribuído manualmente). Sem dados pessoais do cliente (LGPD)."""
     saida = []
     for b in reservas:
         cupom = (b.get("coupon") or "").strip().upper()
-        if not cupom or b.get("status") != "CONFIRMED":
+        pedido = (b.get("orderNumber") or "").upper()
+        if b.get("status") != "CONFIRMED" or not (cupom or pedido in pedidos):
             continue
         criado = (b.get("dateCreated") or "")[:10]
         if criado < data_inicio:
@@ -90,7 +91,7 @@ def extrair_reservas_cupom(reservas, data_inicio):
         ) or sum(i.get("totalQuantity", 1) for i in itens)
         saida.append({
             "n": b.get("orderNumber", ""),
-            "cupom": cupom,
+            "cupom": cupom or "PEDIDO",
             "criado": criado,
             "voo": (itens[0].get("startTimeLocal") or "")[:10] if itens else "",
             "produto": itens[0].get("productName", "-") if itens else "-",
@@ -156,7 +157,9 @@ def main():
     data_inicio = config["data_inicio"]
     parceiros = {k.lower(): v for k, v in config["parceiros"].items()}
 
-    reservas = extrair_reservas_cupom(buscar_reservas(api_key, data_inicio), data_inicio)
+    # Pedidos sem cupom atribuídos a um parceiro (ex.: guias)
+    pedido_para_parceiro = {n.upper(): login for login, p in parceiros.items() for n in p.get("pedidos", [])}
+    reservas = extrair_reservas_cupom(buscar_reservas(api_key, data_inicio), data_inicio, frozenset(pedido_para_parceiro))
     print(f"{len(reservas)} reservas confirmadas com cupom desde {data_inicio}")
 
     gerado_em = datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -170,10 +173,11 @@ def main():
             print(f"  -- {login}: sem senha em PARCEIROS_SENHAS — não publicado")
             continue
         cupons = {c.upper() for c in p["cupons"]}
+        pedidos = {n.upper() for n in p.get("pedidos", [])}
         payload = {
             "gerado_em": gerado_em, "comissao_pct": pct, "data_inicio": data_inicio,
-            "admin": False, "parceiro": {"login": login, "nome": p["nome"], "cupons": sorted(cupons)},
-            "reservas": [r for r in reservas if r["cupom"] in cupons],
+            "admin": False, "parceiro": {"login": login, "nome": p["nome"], "tipo": p.get("tipo", "Parceiro"), "cupons": sorted(cupons)},
+            "reservas": [r for r in reservas if r["cupom"] in cupons or r["n"].upper() in pedidos],
         }
         validos.add(gravar(payload, login, senhas[login]))
         print(f"  ok {login}: {len(payload['reservas'])} reservas")
@@ -185,8 +189,8 @@ def main():
         payload = {
             "gerado_em": gerado_em, "comissao_pct": pct, "data_inicio": data_inicio,
             "admin": True, "parceiro": {"login": admin, "nome": "Vertical Rio", "cupons": []},
-            "parceiros": [{"login": l, "nome": p["nome"], "cupons": p["cupons"]} for l, p in parceiros.items()],
-            "reservas": [dict(r, parceiro=nomes.get(cupom_para_parceiro.get(r["cupom"]), "Sem parceiro"))
+            "parceiros": [{"login": l, "nome": p["nome"], "tipo": p.get("tipo", "Parceiro"), "cupons": p["cupons"]} for l, p in parceiros.items()],
+            "reservas": [dict(r, parceiro=nomes.get(pedido_para_parceiro.get(r["n"].upper()) or cupom_para_parceiro.get(r["cupom"]), "Sem parceiro"))
                          for r in reservas],
         }
         validos.add(gravar(payload, admin, senhas[admin]))

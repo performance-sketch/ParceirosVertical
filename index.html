@@ -4,188 +4,286 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Parceiros Vertical</title>
+<title>Parceiros — Vertical Rio</title>
+<link rel="icon" href="https://pub-64ddf6587a154706980200c5e647bba8.r2.dev/vertical-rio-logo-black.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f6f8fb; --surface:#ffffff; --ink:#101828; --muted:#667085; --line:#e5e7eb;
-  --blue:#2563eb; --blue2:#dbeafe; --green:#16a34a; --green2:#dcfce7; --red:#dc2626;
-  --soft:#f1f5f9; --dark:#0f172a;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0b1220; --surface:#101827; --ink:#f8fafc; --muted:#a7b0c0; --line:#223047;
-    --blue:#60a5fa; --blue2:#162a50; --green:#4ade80; --green2:#12301f; --soft:#172033; --dark:#020617;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0b1220; --surface:#101827; --ink:#f8fafc; --muted:#a7b0c0; --line:#223047;
-  --blue:#60a5fa; --blue2:#162a50; --green:#4ade80; --green2:#12301f; --soft:#172033; --dark:#020617;
+  --bg:#ffffff; --ink:#0a0a0a; --ink2:#3f3f46; --muted:#71717a; --faint:#a1a1aa;
+  --line:#e7e7ea; --soft:#f6f6f7; --red:#b42318; --green:#15803d;
+  --radius:16px;
 }
 *{box-sizing:border-box}
+html{color-scheme:light}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 button,input,select{font:inherit;color:inherit}
 .hidden{display:none!important}
+.logo{display:block;height:46px;width:auto}
+.num{font-variant-numeric:tabular-nums}
 
-/* Login */
+/* ── Login ───────────────────────────────────────────── */
 #login{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
-.card-login{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:32px 28px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;margin-bottom:4px}
-.brand-mark{width:34px;height:34px;border-radius:9px;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:15px}
-.card-login p{color:var(--muted);margin:0 0 24px;font-size:14px}
+.login-box{width:100%;max-width:380px}
+.login-box .logo{height:72px;margin:0 auto 32px}
+.card-login{border:1px solid var(--line);border-radius:var(--radius);padding:30px 26px}
+.card-login h1{font:700 22px/1.2 "Inter Tight",Inter,sans-serif;margin:0 0 6px;letter-spacing:-.02em}
+.card-login p{color:var(--muted);margin:0 0 22px;font-size:14px}
 label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
-input[type=text],input[type=password],input[type=date],select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);outline:none}
-input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue2)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;border-radius:10px;border:1px solid transparent;background:var(--blue);color:#fff;font-weight:600;cursor:pointer}
+input[type=text],input[type=password],input[type=date],select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;outline:none}
+input:focus,select:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(10,10,10,.08)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;border-radius:999px;border:1px solid var(--line);background:#fff;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--soft)}
+.btn-dark{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn-dark:hover{background:#27272a}
 .btn:disabled{opacity:.6;cursor:wait}
-.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
-.btn-block{width:100%;margin-top:22px}
+.btn-block{width:100%;margin-top:22px;padding:12px}
 .erro{color:var(--red);font-size:13px;margin-top:12px;min-height:18px}
+.login-foot{text-align:center;color:var(--faint);font-size:12px;margin-top:20px}
 
-/* App */
-header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
-.top{max-width:1200px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.top .who{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)}
-main{max-width:1200px;margin:0 auto;padding:20px 16px 48px}
-h1{font-size:22px;margin:0}
-.sub{color:var(--muted);font-size:13px;margin-top:2px}
-.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:20px 0}
-.toolbar .f{display:flex;flex-direction:column;min-width:150px;flex:0 1 auto}
-.toolbar .f label{margin:0 0 4px;font-size:12px;color:var(--muted);font-weight:500}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:13px}
-.chip.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
-.kpi .l{font-size:13px;color:var(--muted)}
-.kpi .v{font-size:26px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.kpi .s{font-size:12px;color:var(--muted);margin-top:2px}
-.kpi.destaque{background:var(--green2);border-color:transparent}
-.kpi.destaque .v{color:var(--green)}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:16px}
-.panel h2{font-size:15px;margin:0 0 14px}
-.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
-.grid2 .panel{margin-top:16px}
-@media (max-width:860px){.grid2{grid-template-columns:1fr}}
-.bars{display:flex;align-items:flex-end;gap:8px;height:200px;padding-top:10px}
+/* ── Header ──────────────────────────────────────────── */
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header{border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:10}
+.top{display:flex;align-items:center;gap:20px;padding:16px 0;flex-wrap:wrap}
+.top .t1{font-weight:700;font-size:16px}
+.top .t2{display:flex;gap:20px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.top .t2 b{font-weight:500;color:var(--faint)}
+.top .acoes{margin-left:auto;display:flex;gap:8px}
+.ico{width:16px;height:16px}
+
+/* ── Filtros ─────────────────────────────────────────── */
+.filtros{border-bottom:1px solid var(--line);background:var(--soft)}
+.filtros .wrap{display:flex;flex-wrap:wrap;gap:12px;padding-top:16px;padding-bottom:16px;align-items:flex-end}
+.filtros .f{display:flex;flex-direction:column;min-width:170px;flex:1 1 170px;max-width:260px}
+.filtros .f label{margin:0 0 4px;font-size:12px;color:var(--muted);font-weight:500}
+
+/* ── Hero ────────────────────────────────────────────── */
+.hero{padding:64px 0 8px}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+.hero h1{font:800 clamp(30px,5vw,48px)/1.08 "Inter Tight",Inter,sans-serif;letter-spacing:-.035em;margin:14px 0 18px;max-width:860px}
+.hero h1 .neg{color:var(--red)} .hero h1 .pos{color:var(--green)}
+.hero .lead{font-size:17px;color:var(--ink2);max-width:640px;margin:0;line-height:1.6}
+
+/* ── KPIs ────────────────────────────────────────────── */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin:48px 0 64px}
+@media (max-width:1000px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:640px){.kpis{grid-template-columns:repeat(2,1fr);gap:10px}}
+.kpi{border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;min-width:0}
+.kpi .l{font-size:13px;font-weight:500;color:var(--ink2);min-height:40px;line-height:1.5}
+.kpi .v{font:700 32px/1.1 "Inter Tight",Inter,sans-serif;letter-spacing:-.03em;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .v small{font:500 17px Inter,sans-serif;letter-spacing:0;margin-right:2px}
+.delta{display:inline-flex;align-items:center;gap:3px;font-size:13px;font-weight:600;margin-top:12px}
+.delta.neg{color:var(--red)} .delta.pos{color:var(--green)} .delta.nul{color:var(--faint)}
+.delta svg{width:12px;height:12px}
+.kpi .vs{font-size:12px;color:var(--muted);margin-top:4px}
+@media (max-width:640px){.kpi{padding:16px}.kpi .v{font-size:24px}.kpi .v small{font-size:14px}}
+
+/* ── Seções ──────────────────────────────────────────── */
+.sec-h{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.sec-h h2{font:700 22px/1.2 "Inter Tight",Inter,sans-serif;letter-spacing:-.02em;margin:0}
+.tabs{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
+.tab{padding:7px 14px;border-radius:10px;border:0;background:none;font-size:14px;font-weight:500;color:var(--ink2);cursor:pointer}
+.tab.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);color:var(--ink);font-weight:600}
+section.bloco{margin-bottom:64px}
+
+/* ── Ranking ─────────────────────────────────────────── */
+.rank{display:flex;flex-direction:column;gap:12px}
+.rk{display:grid;grid-template-columns:44px 52px 1fr auto 150px;align-items:center;gap:12px;border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;cursor:pointer;background:#fff;text-align:left;width:100%}
+.rk:hover{border-color:#c9c9cf}
+.rk.top1{border-color:var(--ink)}
+.rk .rkpos{font-weight:700;font-size:17px}
+.rk .ini{font-weight:600;color:var(--faint);font-size:15px}
+.rk .nm{font-weight:600;font-size:16px}
+.rk .meta{font-size:13px;color:var(--ink2);margin-top:2px}
+.rk .meta b{font-weight:600;letter-spacing:.03em}
+.rk .part{font-size:14px;color:var(--ink2)}
+.rk .val{text-align:right}
+.rk .val .v{font:700 19px "Inter Tight",Inter,sans-serif;letter-spacing:-.02em;white-space:nowrap}
+.rk .val .v small{font:500 13px Inter,sans-serif;margin-right:2px}
+.rk .val .delta{margin-top:2px}
+@media (max-width:640px){
+  .rk{grid-template-columns:28px 1fr auto;padding:14px 16px;gap:10px}
+  .rk .ini,.rk .part{display:none}
+  .rk .val .v{font-size:16px}
+}
+.mais{display:flex;justify-content:center;margin-top:20px}
+
+/* ── Gráfico de ciclos ───────────────────────────────── */
+.chart{border:1px solid var(--line);border-radius:var(--radius);padding:24px 22px 16px}
+.bars{display:flex;align-items:flex-end;gap:10px;height:220px}
 .bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
-.bar .col{width:100%;max-width:46px;background:var(--blue);border-radius:4px 4px 0 0;min-height:2px;position:relative}
-.bar .col:hover{opacity:.85}
-.bar .x{font-size:11px;color:var(--muted);margin-top:6px;white-space:nowrap}
-.bar .t{font-size:11px;color:var(--muted);margin-bottom:4px;white-space:nowrap;font-variant-numeric:tabular-nums}
-.vazio{color:var(--muted);text-align:center;padding:36px 0;font-size:14px}
-.tbl-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13.5px}
-th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
-th{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
-td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
-tr.click{cursor:pointer}
-tr.click:hover td{background:var(--soft)}
-.tag{display:inline-block;padding:2px 8px;border-radius:6px;background:var(--blue2);color:var(--blue);font-size:12px;font-weight:600}
-.share{display:flex;align-items:center;gap:8px;font-size:13px}
-.share .trk{flex:1;height:6px;background:var(--soft);border-radius:3px;overflow:hidden;min-width:60px}
-.share .trk i{display:block;height:100%;background:var(--blue)}
-.foot{color:var(--muted);font-size:12px;margin-top:24px;text-align:center}
+.bar .col{width:100%;max-width:56px;background:#d4d4d8;border-radius:6px 6px 0 0;min-height:2px}
+.bar.cur .col{background:var(--ink)}
+.bar .t{font-size:12px;color:var(--ink2);margin-bottom:6px;white-space:nowrap;font-weight:500}
+.bar .x{font-size:12px;color:var(--muted);margin-top:8px;white-space:nowrap}
+.bar.cur .x{color:var(--ink);font-weight:600}
+@media (max-width:640px){.bar .t{font-size:10px}.bars{gap:5px}}
+
+/* ── Tabela ──────────────────────────────────────────── */
+.tbl{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+th{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;background:var(--soft)}
+td.r,th.r{text-align:right}
+.code{font-weight:600;font-size:12px;letter-spacing:.04em;padding:3px 8px;border-radius:6px;background:var(--soft)}
+.vazio{color:var(--muted);text-align:center;padding:40px 16px;font-size:14px}
+
+/* ── Footer ──────────────────────────────────────────── */
+footer{border-top:1px solid var(--line);margin-top:24px;padding:40px 0 48px;text-align:center}
+footer .logo{height:44px;margin:0 auto 14px;opacity:.45}
+footer p{margin:0;font-size:13px;color:var(--muted)}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- ═══ LOGIN ═══ -->
 <section id="login">
-  <form class="card-login" id="form-login" autocomplete="on">
-    <div class="brand"><span class="brand-mark">V</span> Parceiros Vertical</div>
-    <p>Acompanhe as reservas feitas com o seu cupom.</p>
-    <label for="usuario">Usuário</label>
-    <input id="usuario" type="text" autocomplete="username" autocapitalize="none" required>
-    <label for="senha">Senha</label>
-    <input id="senha" type="password" autocomplete="current-password" required>
-    <button class="btn btn-block" id="btn-entrar" type="submit">Entrar</button>
-    <div class="erro" id="erro-login"></div>
-  </form>
+  <div class="login-box">
+    <img class="logo" src="https://pub-64ddf6587a154706980200c5e647bba8.r2.dev/vertical-rio-logo-black.webp" alt="Vertical Rio">
+    <form class="card-login" id="form-login" autocomplete="on">
+      <h1>Portal de Parceiros</h1>
+      <p>Acompanhe as reservas confirmadas com o seu cupom e suas comissões.</p>
+      <label for="usuario">Usuário</label>
+      <input id="usuario" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+      <label for="senha">Senha</label>
+      <input id="senha" type="password" autocomplete="current-password" required>
+      <button class="btn btn-dark btn-block" id="btn-entrar" type="submit">Entrar</button>
+      <div class="erro" id="erro-login"></div>
+    </form>
+    <div class="login-foot">Acesso restrito a parceiros Vertical Rio</div>
+  </div>
 </section>
 
-<!-- APP -->
+<!-- ═══ APP ═══ -->
 <section id="app" class="hidden">
   <header>
-    <div class="top">
-      <div class="brand"><span class="brand-mark">V</span> Parceiros Vertical</div>
-      <div class="who"><span id="who-nome"></span><button class="btn btn-ghost" id="btn-sair" type="button">Sair</button></div>
+    <div class="wrap top">
+      <img class="logo" src="https://pub-64ddf6587a154706980200c5e647bba8.r2.dev/vertical-rio-logo-black.webp" alt="Vertical Rio">
+      <div>
+        <div class="t1" id="h-titulo">Ranking Parceiros</div>
+        <div class="t2"><b id="h-ciclo"></b><span id="h-atualizado"></span></div>
+      </div>
+      <div class="acoes">
+        <button class="btn" id="btn-filtros" type="button">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtros
+        </button>
+        <button class="btn" id="btn-sair" type="button">Sair</button>
+      </div>
     </div>
   </header>
-  <main>
-    <h1 id="titulo"></h1>
-    <div class="sub" id="subtitulo"></div>
 
-    <div class="toolbar">
-      <div class="chips" id="chips-periodo"></div>
+  <div class="filtros hidden" id="painel-filtros">
+    <div class="wrap">
+      <div class="f"><label for="sel-ciclo">Ciclo de análise</label><select id="sel-ciclo"></select></div>
       <div class="f"><label for="dt-ini">De</label><input type="date" id="dt-ini"></div>
       <div class="f"><label for="dt-fim">Até</label><input type="date" id="dt-fim"></div>
       <div class="f hidden" id="f-parceiro"><label for="sel-parceiro">Parceiro</label><select id="sel-parceiro"></select></div>
     </div>
+  </div>
 
-    <div class="kpis">
-      <div class="kpi"><div class="l">Reservas confirmadas</div><div class="v" id="k-res">0</div><div class="s" id="k-pax"></div></div>
-      <div class="kpi"><div class="l">Receita bruta</div><div class="v" id="k-rec">R$ 0</div><div class="s" id="k-ticket"></div></div>
-      <div class="kpi destaque"><div class="l">Comissão</div><div class="v" id="k-com">R$ 0</div><div class="s" id="k-pct"></div></div>
+  <main class="wrap">
+    <div class="hero">
+      <div class="eyebrow" id="eyebrow"></div>
+      <h1 id="headline"></h1>
+      <p class="lead" id="lead"></p>
     </div>
 
-    <div class="grid2">
-      <div class="panel">
-        <h2>Receita bruta por mês</h2>
-        <div id="grafico"></div>
+    <div class="kpis" id="kpis"></div>
+
+    <section class="bloco" id="bloco-ranking">
+      <div class="sec-h">
+        <h2>Ranking Parceiros</h2>
+        <div class="tabs" id="tabs-rank">
+          <button class="tab on" data-m="com">Comissão</button>
+          <button class="tab" data-m="res">Reservas</button>
+          <button class="tab" data-m="cpr">Comissão / Reserva</button>
+          <button class="tab" data-m="part">Participação</button>
+        </div>
       </div>
-      <div class="panel" id="painel-lado">
-        <h2 id="lado-titulo">Produtos</h2>
-        <div id="lado"></div>
-      </div>
-    </div>
+      <div class="rank" id="rank"></div>
+      <div class="mais" id="mais"></div>
+    </section>
 
-    <div class="panel">
-      <h2>Reservas <span class="sub" id="cont-res" style="font-weight:400"></span></h2>
-      <div class="tbl-wrap"><table id="tbl-res"></table></div>
-    </div>
+    <section class="bloco" id="bloco-ciclos">
+      <div class="sec-h"><h2>Comissão por ciclo</h2></div>
+      <div class="chart" id="chart"></div>
+    </section>
 
-    <div class="foot" id="rodape"></div>
+    <section class="bloco">
+      <div class="sec-h"><h2>Reservas confirmadas</h2><span class="num" id="cont-res" style="color:var(--muted)"></span></div>
+      <div class="tbl"><div class="tbl-scroll"><table id="tbl-res"></table></div></div>
+    </section>
   </main>
+
+  <footer>
+    <img class="logo" src="https://pub-64ddf6587a154706980200c5e647bba8.r2.dev/vertical-rio-logo-black.webp" alt="Vertical Rio">
+    <p id="rodape"></p>
+  </footer>
 </section>
 
 <script>
 (() => {
   const SESS = 'pv_sess';
-  const fmtBRL = v => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
-  const fmtInt = v => v.toLocaleString('pt-BR');
-  const fmtData = s => s ? s.split('-').reverse().join('/') : '—';
-  const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const SEM = 'Sem parceiro';
+  const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const $ = id => document.getElementById(id);
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const nBR = (v, d = 2) => v.toLocaleString('pt-BR', {minimumFractionDigits: d, maximumFractionDigits: d});
+  const brl = v => 'R$ ' + nBR(v);
+  const brlBig = v => `<small>R$</small>${nBR(v)}`;
+  const int = v => v.toLocaleString('pt-BR');
+  const pctTxt = v => v.toLocaleString('pt-BR', {maximumFractionDigits: 1}) + '%';
+  const dBR = s => s ? s.split('-').reverse().join('/') : '—';
   const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
   const toB64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
-  const sha256hex = async s => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2,'0')).join('');
+  const sha256hex = async s => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, '0')).join('');
+  const iniciais = n => n.split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase();
+  const UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>';
+  const DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+  const variacao = (a, b) => b ? (a - b) / b * 100 : null;
+  const deltaHTML = v => v === null || !isFinite(v) ? '<span class="delta nul">—</span>'
+    : `<span class="delta ${v < 0 ? 'neg' : 'pos'}">${v < 0 ? DOWN : UP}${v > 0 ? '+' : ''}${pctTxt(Math.round(v * 10) / 10)}</span>`;
 
-  // ─── Criptografia (espelha scripts/build_data.py) ─────────────────────────
+  // ─── Criptografia (espelha scripts/build_data.py) ────────────────────────
   async function derivarChave(login, senha, iter) {
     const salt = (await crypto.subtle.digest('SHA-256', new TextEncoder().encode('pv-salt:' + login))).slice(0, 16);
     const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(senha), 'PBKDF2', false, ['deriveKey']);
-    return crypto.subtle.deriveKey({name:'PBKDF2', hash:'SHA-256', salt, iterations: iter}, base,
-      {name:'AES-GCM', length:256}, true, ['decrypt']);
+    return crypto.subtle.deriveKey({name: 'PBKDF2', hash: 'SHA-256', salt, iterations: iter}, base,
+      {name: 'AES-GCM', length: 256}, true, ['decrypt']);
   }
   async function baixar(login) {
     const arq = (await sha256hex('pv-file:' + login)).slice(0, 24) + '.json';
-    const r = await fetch('data/' + arq + '?t=' + Date.now(), {cache:'no-store'});
+    const r = await fetch('data/' + arq + '?t=' + Date.now(), {cache: 'no-store'});
     if (!r.ok) throw new Error('login');
     return r.json();
   }
   async function abrir(env, chave) {
-    const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv: b64(env.iv)}, chave, b64(env.ct));
+    const pt = await crypto.subtle.decrypt({name: 'AES-GCM', iv: b64(env.iv)}, chave, b64(env.ct));
     return JSON.parse(new TextDecoder().decode(pt));
+  }
+
+  // ─── Ciclos de análise: dia 26 do mês anterior a 25 do mês ───────────────
+  const pad = n => String(n).padStart(2, '0');
+  const isoD = (y, m, d) => new Date(Date.UTC(y, m - 1, d)).toISOString().slice(0, 10);
+  const cicloDe = s => { let [y, m, d] = s.split('-').map(Number); if (d >= 26) { m++; if (m > 12) { m = 1; y++; } } return {y, m}; };
+  const ciclo = (y, m) => ({id: `${y}-${pad(m)}`, y, m, ini: isoD(y, m - 1, 26), fim: isoD(y, m, 25), nome: `${MESES[m - 1]}/${y}`, curto: `${MESES[m - 1].slice(0, 3).toLowerCase()}/${String(y).slice(2)}`});
+  const anterior = c => c.m === 1 ? ciclo(c.y - 1, 12) : ciclo(c.y, c.m - 1);
+  const hoje = () => { const t = new Date(); return `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`; };
+  function listaCiclos() {
+    const a = cicloDe(D.data_inicio), b = cicloDe(hoje()), out = [];
+    let c = ciclo(b.y, b.m);
+    while (c.id >= `${a.y}-${pad(a.m)}` && out.length < 60) { out.push(c); c = anterior(c); }
+    return out;
   }
 
   // ─── Estado ───────────────────────────────────────────────────────────────
   let D = null, chaveAtual = null, loginAtual = null;
-  const filtro = { ini: '', fim: '', parceiro: '', preset: 'ano' };
+  const F = {ciclo: '', ini: '', fim: '', parceiro: '', metrica: 'com', todos: false};
 
-  // ─── Login ────────────────────────────────────────────────────────────────
+  // ─── Login / sessão ──────────────────────────────────────────────────────
   $('form-login').addEventListener('submit', async e => {
     e.preventDefault();
     const login = $('usuario').value.trim().toLowerCase();
@@ -206,13 +304,13 @@ tr.click:hover td{background:var(--soft)}
       $('btn-entrar').disabled = false; $('btn-entrar').textContent = 'Entrar';
     }
   });
-
   $('btn-sair').addEventListener('click', () => {
     try { sessionStorage.removeItem(SESS); } catch (_) {}
     D = chaveAtual = loginAtual = null;
+    F.ini = F.parceiro = '';
     $('app').classList.add('hidden'); $('login').classList.remove('hidden');
+    window.scrollTo(0, 0);
   });
-
   async function restaurarSessao() {
     try {
       const s = JSON.parse(sessionStorage.getItem(SESS) || 'null');
@@ -223,119 +321,203 @@ tr.click:hover td{background:var(--soft)}
       iniciar();
     } catch (_) { try { sessionStorage.removeItem(SESS); } catch (__) {} }
   }
-
-  // Recarrega os dados a cada 5 min sem pedir senha
   setInterval(async () => {
     if (!chaveAtual) return;
     try { D = await abrir(await baixar(loginAtual), chaveAtual); render(); } catch (_) {}
   }, 5 * 60 * 1000);
 
-  // ─── Períodos ─────────────────────────────────────────────────────────────
-  const iso = d => d.toISOString().slice(0, 10);
-  const PRESETS = [
-    ['mes', 'Este mês', () => { const h = new Date(); return [iso(new Date(h.getFullYear(), h.getMonth(), 1, 12)), iso(h)]; }],
-    ['mes_ant', 'Mês passado', () => { const h = new Date(); return [iso(new Date(h.getFullYear(), h.getMonth() - 1, 1, 12)), iso(new Date(h.getFullYear(), h.getMonth(), 0, 12))]; }],
-    ['30d', 'Últimos 30 dias', () => { const h = new Date(); const i = new Date(h); i.setDate(h.getDate() - 29); return [iso(i), iso(h)]; }],
-    ['ano', 'Este ano', () => { const h = new Date(); return [h.getFullYear() + '-01-01', iso(h)]; }],
-    ['tudo', 'Tudo', () => [D.data_inicio, iso(new Date())]],
-  ];
-  function aplicarPreset(id) {
-    const p = PRESETS.find(p => p[0] === id);
-    [filtro.ini, filtro.fim] = p[2]();
-    filtro.preset = id;
-    $('dt-ini').value = filtro.ini; $('dt-fim').value = filtro.fim;
-    render();
-  }
-  $('chips-periodo').innerHTML = PRESETS.map(p => `<button type="button" class="chip" data-p="${p[0]}">${p[1]}</button>`).join('');
-  $('chips-periodo').addEventListener('click', e => { const p = e.target.dataset.p; if (p) aplicarPreset(p); });
+  // ─── Filtros ──────────────────────────────────────────────────────────────
+  $('btn-filtros').addEventListener('click', () => $('painel-filtros').classList.toggle('hidden'));
+  $('sel-ciclo').addEventListener('change', e => { if (e.target.value) { usarCiclo(e.target.value); render(); } });
   ['dt-ini', 'dt-fim'].forEach(id => $(id).addEventListener('change', () => {
-    filtro.ini = $('dt-ini').value; filtro.fim = $('dt-fim').value; filtro.preset = ''; render();
+    if (!$('dt-ini').value || !$('dt-fim').value) return;
+    F.ini = $('dt-ini').value; F.fim = $('dt-fim').value; F.ciclo = '';
+    $('sel-ciclo').value = ''; render();
   }));
-  $('sel-parceiro').addEventListener('change', e => { filtro.parceiro = e.target.value; render(); });
+  $('sel-parceiro').addEventListener('change', e => { F.parceiro = e.target.value; render(); });
+  $('tabs-rank').addEventListener('click', e => {
+    const m = e.target.dataset.m; if (!m) return;
+    F.metrica = m;
+    document.querySelectorAll('#tabs-rank .tab').forEach(t => t.classList.toggle('on', t.dataset.m === m));
+    render();
+  });
+  $('rank').addEventListener('click', e => {
+    const b = e.target.closest('[data-parc]'); if (!b) return;
+    F.parceiro = b.dataset.parc; $('sel-parceiro').value = F.parceiro; render();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  });
+  $('mais').addEventListener('click', e => { if (e.target.closest('button')) { F.todos = !F.todos; render(); } });
+
+  function usarCiclo(id) {
+    const cs = listaCiclos();
+    const c = cs.find(c => c.id === id) || cs[1] || cs[0];  // padrão: último ciclo fechado
+    F.ciclo = c.id; F.ini = c.ini; F.fim = c.fim;
+    $('sel-ciclo').value = c.id; $('dt-ini').value = c.ini; $('dt-fim').value = c.fim;
+  }
+
+  // ─── Cálculos ─────────────────────────────────────────────────────────────
+  const comissao = r => r.parceiro === SEM ? 0 : r.valor * D.comissao_pct / 100;
+  const doPeriodo = (ini, fim) => D.reservas.filter(r => r.criado >= ini && r.criado <= fim &&
+    (!F.parceiro || r.parceiro === F.parceiro));
+  function resumo(rs) {
+    const pagas = rs.filter(r => r.parceiro !== SEM);
+    const com = pagas.reduce((s, r) => s + comissao(r), 0);
+    return {
+      com, res: pagas.length,
+      receita: pagas.reduce((s, r) => s + r.valor, 0),
+      pax: pagas.reduce((s, r) => s + r.pax, 0),
+      parceiros: new Set(pagas.map(r => r.parceiro)).size,
+      cpr: pagas.length ? com / pagas.length : 0,
+    };
+  }
+  function periodoAnterior() {
+    if (F.ciclo) { const a = anterior(listaCiclos().find(c => c.id === F.ciclo)); return {ini: a.ini, fim: a.fim, nome: a.nome}; }
+    const d0 = new Date(F.ini + 'T12:00:00Z'), d1 = new Date(F.fim + 'T12:00:00Z');
+    const dias = Math.round((d1 - d0) / 864e5) + 1;
+    const fim = new Date(d0 - 864e5), ini = new Date(fim - (dias - 1) * 864e5);
+    return {ini: ini.toISOString().slice(0, 10), fim: fim.toISOString().slice(0, 10), nome: 'período anterior'};
+  }
 
   // ─── Render ───────────────────────────────────────────────────────────────
   function iniciar() {
     $('login').classList.add('hidden'); $('app').classList.remove('hidden');
-    $('who-nome').textContent = D.parceiro.nome;
-    $('titulo').textContent = D.admin ? 'Todos os parceiros' : D.parceiro.nome;
-    $('subtitulo').innerHTML = D.admin
-      ? 'Visão administrativa da Vertical Rio'
-      : 'Cupom ' + D.parceiro.cupons.map(c => `<span class="tag">${esc(c)}</span>`).join(' ');
+    $('h-titulo').textContent = D.admin ? 'Ranking Parceiros' : D.parceiro.nome;
+    $('sel-ciclo').innerHTML = listaCiclos().map((c, i) => `<option value="${c.id}">${c.nome}${i === 0 ? ' (em andamento)' : ''}</option>`).join('') +
+      '<option value="">Período personalizado</option>';
     $('f-parceiro').classList.toggle('hidden', !D.admin);
+    $('bloco-ranking').classList.toggle('hidden', !D.admin);
     if (D.admin) {
-      $('sel-parceiro').innerHTML = '<option value="">Todos</option>' +
-        [...new Set(D.reservas.map(r => r.parceiro))].sort().map(n => `<option>${esc(n)}</option>`).join('');
+      const nomes = [...new Set(D.reservas.map(r => r.parceiro))].filter(n => n !== SEM).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+      $('sel-parceiro').innerHTML = '<option value="">Todos os parceiros</option>' + nomes.map(n => `<option>${esc(n)}</option>`).join('');
     }
-    aplicarPreset(filtro.preset || 'ano');
+    if (!F.ini) usarCiclo('');
+    render();
   }
 
   function render() {
     if (!D) return;
-    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.p === filtro.preset));
-    const pct = D.comissao_pct / 100;
-    const SEM = 'Sem parceiro';
-    const com = r => r.parceiro === SEM ? 0 : r.valor * pct;
-    const rs = D.reservas.filter(r => r.criado >= filtro.ini && r.criado <= filtro.fim &&
-      (!filtro.parceiro || r.parceiro === filtro.parceiro));
+    const rs = doPeriodo(F.ini, F.fim);
+    const ant = periodoAnterior();
+    const rsAnt = doPeriodo(ant.ini, ant.fim);
+    const A = resumo(rs), B = resumo(rsAnt);
+    const cs = listaCiclos();
+    const c = F.ciclo ? cs.find(x => x.id === F.ciclo) : null;
+    const emAndamento = c && c.id === cs[0].id;
+    const vs = c ? `vs ${ant.nome}` : 'vs período anterior';
+    const quem = D.admin ? (F.parceiro || null) : D.parceiro.nome;
+    const infoParc = D.admin ? (D.parceiros || []).find(p => p.nome === F.parceiro) : D.parceiro;
+    const geral = D.admin && !quem;
+    const unidade = c ? 'ciclo' : 'período';
 
-    const receita = rs.reduce((s, r) => s + r.valor, 0);
-    const pax = rs.reduce((s, r) => s + r.pax, 0);
-    $('k-res').textContent = fmtInt(rs.length);
-    $('k-pax').textContent = fmtInt(pax) + ' passageiros';
-    $('k-rec').textContent = fmtBRL(receita);
-    $('k-ticket').textContent = 'Ticket médio ' + fmtBRL(rs.length ? receita / rs.length : 0);
-    $('k-com').textContent = fmtBRL(rs.reduce((s, r) => s + com(r), 0));
-    $('k-pct').textContent = fmtInt(D.comissao_pct) + '% sobre a receita bruta';
+    // Header
+    $('h-ciclo').textContent = c ? `Ciclo de Análise · ${c.nome}` : `Período · ${dBR(F.ini)} – ${dBR(F.fim)}`;
+    const g = new Date(D.gerado_em);
+    $('h-atualizado').textContent = `Atualizado em ${g.toLocaleDateString('pt-BR')} às ${g.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}`;
 
-    // Gráfico mensal
-    const porMes = {};
-    rs.forEach(r => { const m = r.criado.slice(0, 7); porMes[m] = (porMes[m] || 0) + r.valor; });
-    const meses = [];
-    if (filtro.ini && filtro.fim) {
-      let [y, m] = filtro.ini.slice(0, 7).split('-').map(Number);
-      const fim = filtro.fim.slice(0, 7);
-      while (`${y}-${String(m).padStart(2,'0')}` <= fim && meses.length < 36) {
-        meses.push(`${y}-${String(m).padStart(2,'0')}`); if (++m > 12) { m = 1; y++; }
-      }
+    // Hero
+    $('eyebrow').textContent = (c ? `Ciclo de análise · ${c.nome} · ` : 'Período · ') + `${dBR(F.ini)} – ${dBR(F.fim)}` + (emAndamento ? ' · em andamento' : '');
+    const v = variacao(A.com, B.com);
+    const sujeito = geral ? null : (D.admin ? esc(quem) + ' gerou' : 'Você gerou');
+    let h;
+    if (!A.res) h = `Nenhuma reserva comissionada neste ${unidade}.`;
+    else if (geral && v !== null) h = `${emAndamento ? 'O ciclo apresenta' : `O ${unidade} apresentou`} <span class="${v < 0 ? 'neg' : 'pos'}">${v < 0 ? 'retração' : 'crescimento'} de ${int(Math.round(Math.abs(v)))}%</span> nas comissões pagáveis.`;
+    else if (geral) h = `<span class="pos">${brl(A.com)}</span> em comissões pagáveis neste ${unidade}.`;
+    else if (v === null) h = `${sujeito} <span class="pos">${brl(A.com)}</span> em comissões neste ${unidade}.`;
+    else h = `${sujeito} <span class="pos">${brl(A.com)}</span> em comissões, <span class="${v < 0 ? 'neg' : 'pos'}">${v < 0 ? '−' : '+'}${int(Math.round(Math.abs(v)))}%</span> ${vs}.`;
+    $('headline').innerHTML = h;
+
+    const rank = ranking(rs, rsAnt);
+    if (geral) {
+      $('lead').textContent = rank.length
+        ? `${[...rank].sort((a, b) => b.com - a.com)[0].nome} lidera o ranking · ${brl(A.com)} a pagar entre ${A.parceiros} parceiro${A.parceiros === 1 ? '' : 's'} · ${brl(A.receita)} em vendas com cupom.`
+        : 'Sem vendas com cupom de parceiros no período.';
+    } else {
+      const cup = infoParc && infoParc.cupons.length ? `com o cupom ${infoParc.cupons.join(', ')}` : 'atribuída' + (A.res === 1 ? '' : 's') + (D.admin ? '' : ' a você');
+      $('lead').textContent = `${int(A.res)} reserva${A.res === 1 ? '' : 's'} confirmada${A.res === 1 ? '' : 's'} ${cup} · ${brl(A.receita)} em vendas · comissão de ${pctTxt(D.comissao_pct)} sobre a receita bruta.`;
     }
-    const max = Math.max(1, ...meses.map(m => porMes[m] || 0));
-    const curto = v => v >= 1000 ? 'R$ ' + (v / 1000).toLocaleString('pt-BR', {maximumFractionDigits: 1}) + 'k' : fmtBRL(v);
-    $('grafico').innerHTML = rs.length ? `<div class="bars">${meses.map(m => {
-      const v = porMes[m] || 0, [y, mm] = m.split('-');
-      return `<div class="bar" title="${MESES[+mm - 1]}/${y}: ${fmtBRL(v)}"><div class="t">${v ? curto(v) : ''}</div>
-        <div class="col" style="height:${(v / max * 100).toFixed(1)}%"></div><div class="x">${MESES[+mm - 1]}${meses.length > 12 ? '/' + y.slice(2) : ''}</div></div>`;
-    }).join('')}</div>` : '<div class="vazio">Nenhuma reserva no período.</div>';
 
-    // Painel lateral: ranking de parceiros (admin) ou produtos (parceiro)
-    const agrupar = campo => {
-      const g = {};
-      rs.forEach(r => { const k = r[campo]; g[k] = g[k] || {n: 0, v: 0, c: 0}; g[k].n++; g[k].v += r.valor; g[k].c += com(r); });
-      return Object.entries(g).sort((a, b) => b[1].v - a[1].v);
-    };
-    const porParceiro = D.admin && !filtro.parceiro;
-    $('lado-titulo').textContent = porParceiro ? 'Ranking de parceiros' : 'Produtos';
-    const linhas = agrupar(porParceiro ? 'parceiro' : 'produto');
-    $('lado').innerHTML = linhas.length ? `<div class="tbl-wrap"><table>
-      <tr><th>${porParceiro ? 'Parceiro' : 'Produto'}</th><th class="num">Res.</th><th class="num">Receita</th>${porParceiro ? '<th class="num">Comissão</th>' : '<th>Part.</th>'}</tr>
-      ${linhas.map(([k, g]) => `<tr${porParceiro ? ` class="click" data-parc="${esc(k)}"` : ''}><td>${esc(k)}</td><td class="num">${g.n}</td><td class="num">${fmtBRL(g.v)}</td>
-        ${porParceiro ? `<td class="num">${k === SEM ? '—' : fmtBRL(g.c)}</td>` : `<td><div class="share"><div class="trk"><i style="width:${(g.v / receita * 100).toFixed(0)}%"></i></div>${(g.v / receita * 100).toFixed(0)}%</div></td>`}</tr>`).join('')}
-    </table></div>` : '<div class="vazio">—</div>';
+    // KPIs
+    const K = geral ? [
+      ['Comissões Pagáveis', brlBig(A.com), variacao(A.com, B.com)],
+      ['Reservas Comissionadas', int(A.res), variacao(A.res, B.res)],
+      ['Parceiros Comissionados', int(A.parceiros), variacao(A.parceiros, B.parceiros)],
+      ['Comissão Média por Reserva', brlBig(A.cpr), variacao(A.cpr, B.cpr)],
+      ['Receita Bruta com Cupom', brlBig(A.receita), variacao(A.receita, B.receita)],
+    ] : [
+      ['Comissão', brlBig(A.com), variacao(A.com, B.com)],
+      ['Reservas Confirmadas', int(A.res), variacao(A.res, B.res)],
+      ['Passageiros', int(A.pax), variacao(A.pax, B.pax)],
+      ['Comissão Média por Reserva', brlBig(A.cpr), variacao(A.cpr, B.cpr)],
+      ['Receita Bruta', brlBig(A.receita), variacao(A.receita, B.receita)],
+    ];
+    $('kpis').innerHTML = K.map(([l, val, d]) => `<div class="kpi"><div class="l">${l}</div><div class="v num">${val}</div>${deltaHTML(d)}<div class="vs">${vs}</div></div>`).join('');
 
-    // Tabela de reservas
-    $('cont-res').textContent = rs.length ? `(${fmtInt(rs.length)})` : '';
-    $('tbl-res').innerHTML = rs.length ? `<tr><th>Pedido</th><th>Reserva em</th><th>Data do voo</th>${D.admin ? '<th>Parceiro</th>' : ''}<th>Cupom</th><th>Produto</th><th class="num">PAX</th><th class="num">Valor</th><th class="num">Comissão</th></tr>` +
-      rs.map(r => `<tr><td>${esc(r.n)}</td><td>${fmtData(r.criado)}</td><td>${fmtData(r.voo)}</td>${D.admin ? `<td>${esc(r.parceiro)}</td>` : ''}<td><span class="tag">${esc(r.cupom)}</span></td><td>${esc(r.produto)}</td>
-        <td class="num">${r.pax}</td><td class="num">${fmtBRL(r.valor)}</td><td class="num">${r.parceiro === SEM ? '—' : fmtBRL(com(r))}</td></tr>`).join('')
+    if (D.admin) renderRanking(rank);
+    renderCiclos();
+
+    // Tabela
+    $('cont-res').textContent = rs.length ? `${int(rs.length)} no ${unidade}` : '';
+    $('tbl-res').innerHTML = rs.length
+      ? `<tr><th>Pedido</th><th>Reserva em</th><th>Data do voo</th>${geral ? '<th>Parceiro</th>' : ''}<th>Cupom</th><th>Produto</th><th class="r">PAX</th><th class="r">Valor</th><th class="r">Comissão</th></tr>` +
+        rs.map(r => `<tr><td>${esc(r.n)}</td><td class="num">${dBR(r.criado)}</td><td class="num">${dBR(r.voo)}</td>${geral ? `<td>${esc(r.parceiro)}</td>` : ''}<td>${r.cupom === 'PEDIDO' ? '<span style="color:var(--muted)">pedido</span>' : `<span class="code">${esc(r.cupom)}</span>`}</td><td>${esc(r.produto)}</td>
+          <td class="r num">${r.pax}</td><td class="r num">${brl(r.valor)}</td><td class="r num">${r.parceiro === SEM ? '—' : brl(comissao(r))}</td></tr>`).join('')
       : '<tr><td class="vazio">Nenhuma reserva no período.</td></tr>';
 
-    const g = new Date(D.gerado_em);
-    $('rodape').textContent = `Reservas confirmadas no Rezdy · última atualização dos dados em ${g.toLocaleDateString('pt-BR')} às ${g.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})} · atualização automática a cada 15 min`;
+    $('rodape').textContent = D.admin ? 'Uso interno · Ranking Parceiros' : 'Portal de Parceiros · Vertical Rio';
   }
 
-  $('lado').addEventListener('click', e => {
-    const tr = e.target.closest('tr[data-parc]');
-    if (tr) { filtro.parceiro = tr.dataset.parc; $('sel-parceiro').value = filtro.parceiro; render(); }
-  });
+  function ranking(rs, rsAnt) {
+    const agr = lista => {
+      const g = {};
+      lista.filter(r => r.parceiro !== SEM).forEach(r => {
+        const k = r.parceiro || D.parceiro.nome;
+        g[k] = g[k] || {nome: k, com: 0, res: 0, receita: 0, cupons: new Set()};
+        g[k].com += comissao(r); g[k].res++; g[k].receita += r.valor; g[k].cupons.add(r.cupom === 'PEDIDO' ? r.n : r.cupom);
+      });
+      return g;
+    };
+    const atual = agr(rs), ant = agr(rsAnt);
+    const total = Object.values(atual).reduce((s, x) => s + x.com, 0);
+    return Object.values(atual).map(x => {
+      const p = ant[x.nome] || {com: 0, res: 0};
+      return {...x, cpr: x.res ? x.com / x.res : 0, part: total ? x.com / total * 100 : 0,
+        antCom: p.com, antRes: p.res, antCpr: p.res ? p.com / p.res : 0};
+    });
+  }
+
+  function renderRanking(rank) {
+    const M = F.metrica;
+    const ord = [...rank].sort((a, b) => (M === 'res' ? b.res - a.res : M === 'cpr' ? b.cpr - a.cpr : b.com - a.com));
+    const total = ord.length, vis = F.todos ? ord : ord.slice(0, 5);
+    const tipoDe = n => ((D.parceiros || []).find(p => p.nome === n) || {}).tipo || 'Parceiro';
+    $('rank').innerHTML = total ? vis.map((x, i) => {
+      let val, d;
+      if (M === 'res') { val = `${int(x.res)} <small>reserva${x.res === 1 ? '' : 's'}</small>`; d = variacao(x.res, x.antRes); }
+      else if (M === 'cpr') { val = brlBig(x.cpr); d = variacao(x.cpr, x.antCpr); }
+      else if (M === 'part') { val = pctTxt(Math.round(x.part * 10) / 10); d = null; }
+      else { val = brlBig(x.com); d = variacao(x.com, x.antCom); }
+      return `<button type="button" class="rk${i === 0 ? ' top1' : ''}" data-parc="${esc(x.nome)}">
+        <span class="rkpos">${i + 1}</span><span class="ini">${esc(iniciais(x.nome))}</span>
+        <span><div class="nm">${esc(x.nome)}</div><div class="meta">${esc(tipoDe(x.nome))} · <b>${esc([...x.cupons].join(', '))}</b></div></span>
+        <span class="part num">${pctTxt(Math.round(x.part * 10) / 10)}</span>
+        <span class="val"><div class="v num">${val}</div>${M === 'part' ? '' : deltaHTML(d)}</span>
+      </button>`;
+    }).join('') : '<div class="vazio">Nenhum parceiro com reservas no período.</div>';
+    $('mais').innerHTML = total > 5 ? `<button type="button" class="btn">${F.todos ? 'Mostrar menos' : `Ver todos os ${total} parceiros`}</button>` : '';
+  }
+
+  function renderCiclos() {
+    const cs = listaCiclos().slice(0, 8).reverse();
+    const vals = cs.map(c => resumo(doPeriodo(c.ini, c.fim)).com);
+    const max = Math.max(1, ...vals);
+    const curto = v => v >= 1000 ? 'R$ ' + (v / 1000).toLocaleString('pt-BR', {maximumFractionDigits: 1}) + 'k' : 'R$ ' + nBR(v, 0);
+    $('chart').innerHTML = vals.some(v => v) ? `<div class="bars">${cs.map((c, i) => `
+      <div class="bar${c.id === F.ciclo ? ' cur' : ''}" title="${c.nome}: ${brl(vals[i])}">
+        <div class="t num">${vals[i] ? curto(vals[i]) : ''}</div>
+        <div class="col" style="height:${(vals[i] / max * 100).toFixed(1)}%"></div>
+        <div class="x">${c.curto}</div>
+      </div>`).join('')}</div>` : '<div class="vazio">Sem comissões nos últimos ciclos.</div>';
+  }
 
   restaurarSessao();
 })();
