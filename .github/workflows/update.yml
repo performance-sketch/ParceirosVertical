@@ -1,0 +1,40 @@
+name: Atualizar dados dos parceiros
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [config.json, scripts/build_data.py]
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install requests cryptography
+
+      - name: Buscar reservas no Rezdy e gerar dados criptografados
+        env:
+          REZDY_API_KEY: ${{ secrets.REZDY_API_KEY }}
+          PARCEIROS_SENHAS: ${{ secrets.PARCEIROS_SENHAS }}
+        run: python scripts/build_data.py
+
+      - name: Commit se houver mudança
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A data
+          git diff --cached --quiet || (git commit -m "chore: atualiza dados dos parceiros [skip ci]" && git push)

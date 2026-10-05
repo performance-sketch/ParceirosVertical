@@ -1,0 +1,16 @@
+{
+  "comissao_pct": 10,
+  "data_inicio": "2026-01-01",
+  "admins": ["admin", "verticalrio"],
+  "parceiros": {
+    "vazaonde":   { "nome": "Vaza Onde",   "cupons": ["VAZAONDE"] },
+    "amanda":     { "nome": "Amanda",      "cupons": ["AMANDA"] },
+    "voabrasil":  { "nome": "Voa Brasil",  "cupons": ["VOABRASIL"] },
+    "banana":     { "nome": "Banana",      "cupons": ["BANANA"] },
+    "aircrew":    { "nome": "Aircrew",     "cupons": ["AIRCREW"] },
+    "welove":     { "nome": "We Love",     "cupons": ["WELOVE"] },
+    "rio4fun":    { "nome": "Rio4Fun",     "cupons": ["RIO4FUN"] },
+    "carioquinha":{ "nome": "Carioquinha", "cupons": ["CARIOQUINHA"] },
+    "maladeaventuras": { "nome": "Mala de Aventuras", "cupons": ["MALADEAVENTURAS"] }
+  }
+}
