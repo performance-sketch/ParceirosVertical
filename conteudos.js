@@ -138,7 +138,10 @@
       const a = e.target.closest('[data-post]'); if (a) return abrir(a.dataset.post);
       const c = e.target.closest('[data-creator]'); if (c) { P.setParceiro(c.dataset.creator); window.scrollTo({top: 0, behavior: 'smooth'}); }
     });
-    $('c-dlg').addEventListener('click', e => { if (e.target === $('c-dlg') || e.target.closest('[data-fechar]')) $('c-dlg').close(); });
+    $('c-dlg').addEventListener('click', e => {
+      const ex = e.target.closest('[data-excluir]'); if (ex) return excluir(ex.dataset.excluir, ex);
+      if (e.target === $('c-dlg') || e.target.closest('[data-fechar]')) $('c-dlg').close();
+    });
     C.montado = true;
   }
 
@@ -161,6 +164,16 @@
   const gravarPend = l => { try { localStorage.setItem(PEND_KEY, JSON.stringify(l)); } catch (_) {} };
   const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 
+  // Assina com a mesma chave que abre os dados do parceiro (conferida em instagram_sync.py) e envia ao Make
+  async function enviarAssinado(campos) {
+    const raw = await crypto.subtle.exportKey('raw', P.chave);
+    const k = await crypto.subtle.importKey('raw', raw, {name: 'HMAC', hash: 'SHA-256'}, false, ['sign']);
+    const texto = ['signer', 'login', 'url', 'tipo', 'ts'].map(c => campos[c]).join('\n');
+    campos.sig = hex(await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(texto)));
+    const r = await fetch(MAKE_WEBHOOK, {method: 'POST', body: new URLSearchParams(campos)});
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+  }
+
   async function enviar(e) {
     e.preventDefault();
     const msg = $('c-msg'), a = analisar($('c-url').value);
@@ -171,13 +184,7 @@
     const campos = {signer: P.login, login, url: a.url, tipo: $('c-tipo-in').value, ts: new Date().toISOString()};
     $('c-add').disabled = true; $('c-add').textContent = 'Enviando…';
     try {
-      // Assina o envio com a mesma chave que abre os dados do parceiro (conferida em instagram_sync.py)
-      const raw = await crypto.subtle.exportKey('raw', P.chave);
-      const k = await crypto.subtle.importKey('raw', raw, {name: 'HMAC', hash: 'SHA-256'}, false, ['sign']);
-      const texto = ['signer', 'login', 'url', 'tipo', 'ts'].map(c => campos[c]).join('\n');
-      campos.sig = hex(await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(texto)));
-      const r = await fetch(MAKE_WEBHOOK, {method: 'POST', body: new URLSearchParams(campos)});
-      if (!r.ok) throw new Error('HTTP ' + r.status);
+      await enviarAssinado(campos);
       gravarPend([...lerPend().filter(x => x.id !== a.id), {id: a.id, url: a.url, ts: campos.ts}]);
       PROG[a.id] = {p: 12, txt: 'Enviado · aguardando o GitHub receber'};
       $('c-url').value = ''; $('c-tipo-in').value = '';
@@ -190,6 +197,29 @@
       $('c-add').disabled = false; $('c-add').textContent = 'Adicionar';
     }
   }
+
+  // Exclusão: mesmo caminho e assinatura do envio, com tipo "excluir".
+  // O creator só exclui os próprios posts; o admin exclui em nome do dono (conferido em instagram_sync.py).
+  async function excluir(id, botao) {
+    const p = posts().find(x => x.id === id); if (!p) return;
+    if (!confirm('Excluir esta publicação da biblioteca?\n\nO histórico de métricas dela também será apagado. Esta ação não pode ser desfeita.')) return;
+    const campos = {signer: P.login, login: D().admin ? p.login : P.login, url: p.url, tipo: 'excluir', ts: new Date().toISOString()};
+    botao.disabled = true; botao.textContent = 'Excluindo…';
+    try {
+      await enviarAssinado(campos);
+      gravarPend([...lerPend().filter(x => x.id !== id), {id, url: p.url, ts: campos.ts, acao: 'excluir'}]);
+      PROG[id] = {p: 12, txt: 'Pedido enviado · aguardando o GitHub receber'};
+      $('c-dlg').close();
+      const msg = $('c-msg');
+      msg.className = 'addmsg ok'; msg.textContent = 'Exclusão solicitada. Acompanhe abaixo — a biblioteca atualiza sozinha ao final.';
+      renderPend();
+      $('c-pend').scrollIntoView({behavior: 'smooth', block: 'center'});
+    } catch (_) {
+      botao.disabled = false; botao.textContent = 'Excluir publicação';
+      alert('Não foi possível enviar o pedido de exclusão agora. Tente novamente em instantes.');
+    }
+  }
+
   // ─── Progresso do envio ───────────────────────────────────────────────────
   // Acompanha as automações pela API pública do GitHub (sem login) e, ao final, lê os dados
   // direto do repositório (sem esperar o Pages). Se a API não responder, a barra fica
@@ -224,7 +254,7 @@
   // receber-post.yml faz tudo num job só; o progresso dentro dele é estimado pelo tempo decorrido
   // (sem consultar os passos, para gastar menos da cota da API).
   function etapa(x, runs) {
-    const desde = ms(x.ts) - 15000;
+    const exc = x.acao === 'excluir', desde = ms(x.ts) - 15000;
     const rec = primeiro(runs, r => r.path.endsWith('receber-post.yml') && ms(r.created_at) >= desde);
     if (!rec) return Date.now() - ms(x.ts) > 90000
       ? {p: 12, txt: 'Na fila do Make · aguardando encaminhamento ao GitHub'}
@@ -234,8 +264,8 @@
       : {p: 100, txt: 'Falha no processamento. Tente adicionar de novo.', cls: 'err'};
     if (rec.status !== 'in_progress') return {p: 25, txt: 'Recebido pelo GitHub · iniciando'};
     const t = (Date.now() - ms(rec.run_started_at || rec.created_at)) / 1000;
-    if (t < 8) return {p: 35 + t * 2, txt: 'Preparando a coleta'};
-    if (t < 16) return {p: 52 + (t - 8) * 2.5, txt: 'Coletando métricas públicas no Instagram'};
+    if (t < 8) return {p: 35 + t * 2, txt: exc ? 'Preparando a exclusão' : 'Preparando a coleta'};
+    if (t < 16) return {p: 52 + (t - 8) * 2.5, txt: exc ? 'Removendo da biblioteca' : 'Coletando métricas públicas no Instagram'};
     return {p: Math.min(90, 72 + (t - 16) * 1.5), txt: 'Atualizando a biblioteca'};
   }
 
@@ -268,11 +298,16 @@
     const ids = new Set(posts().map(p => p.id));
     let mudou = false;
     pend.forEach(x => {
-      if (!ids.has(x.id) && PROG[x.id]?.reload && fresco)
+      // Adicionar conclui quando o post aparece nos dados; excluir, quando ele some
+      const exc = x.acao === 'excluir', pronto = exc ? !ids.has(x.id) : ids.has(x.id);
+      if (!pronto && PROG[x.id]?.reload && fresco)
         PROG[x.id] = {p: 60, txt: 'Na fila da atualização automática (até 15 min)', ind: true, aguarda: true};
-      if (!ids.has(x.id) || PROG[x.id]?.fim) return;
-      const p = posts().find(y => y.id === x.id), [st] = STATUS[p.status] || ['Concluído'];
-      PROG[x.id] = {p: 100, txt: p.status === 'atualizado' ? 'Concluído · publicação adicionada à biblioteca' : `Concluído · ${st}`, cls: ['atualizado', 'parcial'].includes(p.status) ? 'ok' : 'err', fim: Date.now()};
+      if (!pronto || PROG[x.id]?.fim) return;
+      if (exc) PROG[x.id] = {p: 100, txt: 'Concluído · publicação excluída da biblioteca', cls: 'ok', fim: Date.now()};
+      else {
+        const p = posts().find(y => y.id === x.id), [st] = STATUS[p.status] || ['Concluído'];
+        PROG[x.id] = {p: 100, txt: p.status === 'atualizado' ? 'Concluído · publicação adicionada à biblioteca' : `Concluído · ${st}`, cls: ['atualizado', 'parcial'].includes(p.status) ? 'ok' : 'err', fim: Date.now()};
+      }
       mudou = true;
     });
     // Itens concluídos saem da lista alguns segundos depois; envios com mais de 1 dia expiram
@@ -286,7 +321,7 @@
     const l = lerPend();
     $('c-pend').innerHTML = l.map(x => {
       const g = PROG[x.id] || {p: 8, txt: 'Enviando…'};
-      return `<div class="pg ${g.cls || ''}"><div class="pg-top"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url)}</a>
+      return `<div class="pg ${g.cls || ''}"><div class="pg-top"><a href="${esc(x.url)}" target="_blank" rel="noopener">${x.acao === 'excluir' ? 'Excluir · ' : ''}${esc(x.url)}</a>
         <span class="pg-t ${g.cls || ''}">${esc(g.txt)}</span></div>
         <div class="pg-bar${g.ind ? ' ind' : ''}" role="progressbar" aria-label="${esc(g.txt)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${g.p}"><i style="width:${g.p}%"></i></div></div>`;
     }).join('');
@@ -581,6 +616,9 @@
             <dt>Link</dt><dd><a href="${esc(p.url)}" target="_blank" rel="noopener" style="color:inherit">Abrir no Instagram ↗</a></dd>
           </dl></div>
         <button class="btn x" type="button" data-fechar aria-label="Fechar">✕</button></div>
+      <div class="dlg-acoes">${lerPend().some(x => x.id === p.id && x.acao === 'excluir')
+        ? '<span class="st">Exclusão em andamento</span>'
+        : `<button class="btn btn-perigo" type="button" data-excluir="${esc(p.id)}">Excluir publicação</button>`}</div>
       ${p.legenda ? `<p class="leg">${esc(p.legenda)}</p>` : ''}
       <div class="kv">${kv.map(([l, v]) => `<div><div class="l">${l}</div><div class="v num">${v}</div></div>`).join('')}</div>
       <p class="nota" style="margin-top:0">${comps.length ? `Interações = ${comps.join(' + ')} (somente o que é público).` : 'Nenhuma métrica pública coletada ainda.'}${(p.aprox || []).length ? ' ≈ indica valor arredondado pelo próprio Instagram (ex.: 12K).' : ''} Métricas por views só são calculadas quando as visualizações estão disponíveis.</p>

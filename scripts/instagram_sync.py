@@ -38,6 +38,7 @@ MAX_COLETAS = 25            # por execução, para não sobrecarregar o Instagra
 PAUSA = 3                   # segundos entre coletas
 ENVIO_VALIDADE = timedelta(days=2)
 TIPOS_INFORMADOS = {"", "Reel", "Post", "Carrossel"}
+EXCLUIR = "excluir"   # no campo tipo: pedido de exclusão (mesmo caminho e assinatura do envio)
 METRICAS = ("views", "curtidas", "comentarios", "compartilhamentos", "reposts")
 
 
@@ -84,7 +85,7 @@ def processar_inbox(db, config, senhas):
                 motivo = "envio expirado"
             elif env["login"] not in parceiros:
                 motivo = "creator desconhecido"
-            elif env.get("tipo", "") not in TIPOS_INFORMADOS:
+            elif env.get("tipo", "") not in TIPOS_INFORMADOS | {EXCLUIR}:
                 motivo = "tipo inválido"
         except (ValueError, TypeError) as e:
             motivo = f"arquivo inválido ({e})"
@@ -94,6 +95,11 @@ def processar_inbox(db, config, senhas):
             continue
 
         info = provider.analisar_url(env["url"])
+        if env.get("tipo") == EXCLUIR:
+            excluir(db, env, info)
+            existentes = {p["id"] for p in db["posts"]}
+            arq.unlink()
+            continue
         if info and info["shortcode"] in existentes:
             print(f"  já cadastrado: {info['shortcode']}")
         else:
@@ -111,6 +117,20 @@ def processar_inbox(db, config, senhas):
             existentes.add(post["id"])
             print(f"  novo post {post['id']} de {post['login']} ({post['status']})")
         arq.unlink()
+
+
+def excluir(db, env, info):
+    """Remove o post (e a capa) da biblioteca. Só o próprio creator — ou um admin em nome dele."""
+    alvo = next((p for p in db["posts"]
+                 if (info and p["id"] == info["shortcode"]) or p["url"] == env["url"]), None)
+    if not alvo:
+        print(f"  exclusão ignorada: {env['url']} não está na biblioteca")
+    elif alvo["login"] != env["login"]:
+        print(f"  exclusão recusada: {alvo['id']} pertence a outro creator")
+    else:
+        db["posts"].remove(alvo)
+        (THUMBS / f"{alvo['id']}.jpg").unlink(missing_ok=True)
+        print(f"  post {alvo['id']} excluído por {env['signer'].lower()}")
 
 
 # ─── Coleta ───────────────────────────────────────────────────────────────────

@@ -228,7 +228,7 @@ def preparar_posts(parceiros):
 
     def campos(login):
         if login is None:
-            return {"posts": [post_publico(x) | {"creator": nomes[x["login"]]} for x in posts],
+            return {"posts": [post_publico(x) | {"creator": nomes[x["login"]], "login": x["login"]} for x in posts],
                     "organico_ciclos": {c: [nomes[l] for l in lst] for c, lst in rank_org.items()},
                     "post_destaque": destaque}
         return {"posts": [post_publico(x) for x in posts if x["login"] == login],
