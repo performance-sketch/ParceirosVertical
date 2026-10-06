@@ -30,6 +30,7 @@ jobs:
         env:
           PAYLOAD: ${{ toJSON(github.event.client_payload) }}
           PARCEIROS_SENHAS: ${{ secrets.PARCEIROS_SENHAS }}
+          PAGAMENTOS_CHAVE: ${{ secrets.PAGAMENTOS_CHAVE }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -48,7 +49,7 @@ jobs:
             gravar_envio
             python scripts/instagram_sync.py
             python scripts/build_data.py --somente-posts
-            git add -A data instagram
+            git add -A data instagram financeiro
             git diff --cached --quiet && exit 0
             git commit -q -m "chore: novo post na biblioteca [skip ci]"
             git push -q && exit 0

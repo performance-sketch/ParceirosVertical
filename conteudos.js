@@ -648,5 +648,5 @@
     $('c-dlg').showModal();
   }
 
-  window.PVC = {render};
+  window.PVC = {render, abrir: id => { if (!C.montado) montar(); abrir(id); }, enviarAssinado, thumbHTML, inter, tipoDe};
 })();

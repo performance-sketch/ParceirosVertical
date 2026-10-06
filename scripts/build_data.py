@@ -27,6 +27,9 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import painel_dados  # noqa: E402
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 REZDY_BASE = "https://api.rezdy.com/v1"
@@ -98,6 +101,7 @@ def extrair_reservas_cupom(reservas, data_inicio, pedidos=frozenset()):
             "produto": itens[0].get("productName", "-") if itens else "-",
             "pax": pax,
             "valor": round(float(b.get("totalAmount", 0) or 0), 2),
+            "_aud": painel_dados.dados_audiencia(b),   # só para agregados; nunca vai para os arquivos
         })
     saida.sort(key=lambda r: r["criado"], reverse=True)
     return saida
@@ -225,16 +229,25 @@ def preparar_posts(parceiros):
     com_inter = [p for p in posts if interacoes(p) is not None]
     destaque = max(com_inter, key=interacoes)["id"] if com_inter else None
     nomes = {login: p["nome"] for login, p in parceiros.items()}
+    medias, media_geral = painel_dados.engajamento_referencia(posts, set(parceiros))
+    pagamentos = painel_dados.carregar_pagamentos()
 
     def campos(login):
         if login is None:
             return {"posts": [post_publico(x) | {"creator": nomes[x["login"]], "login": x["login"]} for x in posts],
                     "organico_ciclos": {c: [nomes[l] for l in lst] for c, lst in rank_org.items()},
-                    "post_destaque": destaque}
+                    "post_destaque": destaque,
+                    "engajamento_ref": {"por_creator": {nomes[l]: round(v, 1) for l, v in medias.items()},
+                                        "media": round(media_geral, 1) if media_geral is not None else None},
+                    "pagamentos": [x | {"nome": nomes.get(x["login"], x["login"])} for x in pagamentos]}
         return {"posts": [post_publico(x) for x in posts if x["login"] == login],
                 "organico_ciclos": {c: {"pos": lst.index(login) + 1, "total": len(lst)}
                                     for c, lst in rank_org.items() if login in lst},
-                "post_destaque": destaque if any(x["id"] == destaque and x["login"] == login for x in posts) else None}
+                "post_destaque": destaque if any(x["id"] == destaque and x["login"] == login for x in posts) else None,
+                # Só a média entre creators (agregada) — nunca o valor de outro creator
+                "engajamento_ref": {"meu": round(medias[login], 1) if login in medias else None,
+                                    "media": round(media_geral, 1) if media_geral is not None else None},
+                "pagamentos": [{k: x[k] for k in ("ciclo", "valor", "em")} for x in pagamentos if x["login"] == login]}
     return campos
 
 
@@ -281,6 +294,9 @@ def main():
     rank_ciclos = ranking_por_ciclo(reservas, dono)
 
     campos_posts = preparar_posts(parceiros)
+    pub = lambda r: {k: v for k, v in r.items() if k != "_aud"}
+    rk = painel_dados.rankings(reservas, carregar_posts(), dono, set(parceiros))
+    aud_de = lambda login: painel_dados.agregar_audiencia([r["_aud"] for r in reservas if dono(r) == login])
 
     DATA_DIR.mkdir(exist_ok=True)
     validos = set()
@@ -294,7 +310,9 @@ def main():
         payload = {
             "gerado_em": gerado_em, "comissao_pct": pct, "data_inicio": data_inicio,
             "admin": False, "parceiro": {"login": login, "nome": p["nome"], "tipo": p.get("tipo", "Parceiro"), "cupons": sorted(cupons)},
-            "reservas": [r for r in reservas if r["cupom"] in cupons or r["n"].upper() in pedidos],
+            "reservas": [pub(r) for r in reservas if r["cupom"] in cupons or r["n"].upper() in pedidos],
+            "audiencia": aud_de(login),
+            "rankings": painel_dados.ranking_do_parceiro(rk, login),
             # Só a própria posição em cada ciclo — valores dos outros parceiros não são expostos
             "ranking_ciclos": {c: {"pos": lst.index(login) + 1, "total": len(lst)}
                                for c, lst in rank_ciclos.items() if login in lst},
@@ -310,7 +328,10 @@ def main():
             "gerado_em": gerado_em, "comissao_pct": pct, "data_inicio": data_inicio,
             "admin": True, "parceiro": {"login": admin, "nome": "Vertical Rio", "cupons": []},
             "parceiros": [{"login": l, "nome": p["nome"], "tipo": p.get("tipo", "Parceiro"), "cupons": p["cupons"]} for l, p in parceiros.items()],
-            "reservas": [dict(r, parceiro=nomes.get(dono(r), "Sem parceiro")) for r in reservas],
+            "reservas": [dict(pub(r), parceiro=nomes.get(dono(r), "Sem parceiro")) for r in reservas],
+            "audiencia": {nomes[l]: aud_de(l) for l in parceiros}
+                         | {"": painel_dados.agregar_audiencia([r["_aud"] for r in reservas if dono(r)])},
+            "rankings": {per: {d: [[nomes[l], v] for l, v in lst] for d, lst in dims.items()} for per, dims in rk.items()},
             "ranking_ciclos": {c: [nomes[l] for l in lst] for c, lst in rank_ciclos.items()},
         } | campos_posts(None)
         validos.add(gravar(payload, admin, senhas[admin]))

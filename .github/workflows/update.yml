@@ -34,13 +34,14 @@ jobs:
         env:
           REZDY_API_KEY: ${{ secrets.REZDY_API_KEY }}
           PARCEIROS_SENHAS: ${{ secrets.PARCEIROS_SENHAS }}
+          PAGAMENTOS_CHAVE: ${{ secrets.PAGAMENTOS_CHAVE }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           for tentativa in 1 2 3 4; do
             python scripts/instagram_sync.py
             python scripts/build_data.py
-            git add -A data instagram
+            git add -A data instagram financeiro
             git diff --cached --quiet && exit 0
             git commit -q -m "chore: atualiza dados dos parceiros [skip ci]"
             git push -q && exit 0

@@ -28,6 +28,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import instagram_post_provider as provider  # noqa: E402
+import painel_dados  # noqa: E402
 from build_data import PBKDF2_ITER, ROOT, _load_env, salt_login  # noqa: E402
 
 IG_DIR = ROOT / "instagram"
@@ -39,6 +40,7 @@ PAUSA = 3                   # segundos entre coletas
 ENVIO_VALIDADE = timedelta(days=2)
 TIPOS_INFORMADOS = {"", "Reel", "Post", "Carrossel"}
 EXCLUIR = "excluir"   # no campo tipo: pedido de exclusão (mesmo caminho e assinatura do envio)
+PAGAMENTO = "pagamento"   # no campo tipo: admin registra comissão paga (url = "pv:pagamento:<ciclo>:<valor>")
 METRICAS = ("views", "curtidas", "comentarios", "compartilhamentos", "reposts")
 
 
@@ -85,7 +87,7 @@ def processar_inbox(db, config, senhas):
                 motivo = "envio expirado"
             elif env["login"] not in parceiros:
                 motivo = "creator desconhecido"
-            elif env.get("tipo", "") not in TIPOS_INFORMADOS | {EXCLUIR}:
+            elif env.get("tipo", "") not in TIPOS_INFORMADOS | {EXCLUIR, PAGAMENTO}:
                 motivo = "tipo inválido"
         except (ValueError, TypeError) as e:
             motivo = f"arquivo inválido ({e})"
@@ -94,6 +96,10 @@ def processar_inbox(db, config, senhas):
             arq.unlink()
             continue
 
+        if env.get("tipo") == PAGAMENTO:
+            print("  " + painel_dados.registrar_pagamento(env, admins, parceiros))
+            arq.unlink()
+            continue
         info = provider.analisar_url(env["url"])
         if env.get("tipo") == EXCLUIR:
             excluir(db, env, info)
