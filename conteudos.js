@@ -196,15 +196,23 @@
   // indeterminada e o portal segue conferindo os dados publicados.
   const GH = 'https://api.github.com/repos/performance-sketch/ParceirosVertical/actions/runs';
   const PROG = {};          // id → {p, txt, cls, ind, fim}
-  const cacheGH = {};       // url → {etag, json}: respostas 304 não contam no limite da API
-  let timer = null, ultimoReload = 0, ocupado = false;
+  const cacheGH = {};       // url → {etag, json}
+  // A API pública do GitHub permite 60 consultas/hora por IP. O portal guarda uma reserva e,
+  // abaixo dela (ou se a API recusar), passa a conferir só os dados publicados no site.
+  const RESERVA_API = 15;
+  let timer = null, ultimoReload = 0, ocupado = false, ultimaConsulta = 0, apiLivre = 60, apiVoltaEm = 0;
   const ms = s => new Date(s).getTime();
   const primeiro = (lista, f) => lista.filter(f).sort((a, b) => ms(a.created_at) - ms(b.created_at))[0];
 
+  const apiDisponivel = () => Date.now() >= apiVoltaEm && apiLivre > RESERVA_API;
   async function gh(url) {
+    if (!apiDisponivel()) return null;
     const c = cacheGH[url];
     try {
       const r = await fetch(url, {headers: c ? {'If-None-Match': c.etag} : {}, cache: 'no-store'});
+      const resta = +r.headers.get('X-RateLimit-Remaining'), volta = +r.headers.get('X-RateLimit-Reset');
+      if (r.headers.has('X-RateLimit-Remaining')) apiLivre = resta;
+      if (volta && (r.status === 403 || r.status === 429 || resta <= RESERVA_API)) apiVoltaEm = volta * 1000;
       if (r.status === 304 && c) return c.json;
       if (!r.ok) return null;
       const json = await r.json();
@@ -254,15 +262,21 @@
   async function verificar() {
     const pend = lerPend();
     if (!pend.length) { clearInterval(timer); timer = null; return; }
+    // Ritmo: 3 s enquanto o GitHub trabalha; 15 s enquanto o envio ainda espera o Make
+    const ativo = pend.some(x => (PROG[x.id]?.p || 0) > 12 && !PROG[x.id]?.cls);
+    const agoraMs = Date.now();
+    if (agoraMs - ultimaConsulta < (ativo ? 3000 : 15000)) return;
+    ultimaConsulta = agoraMs;
     const runs = ((await gh(GH + '?per_page=20')) || {}).workflow_runs;
     let recarregar = false;
     for (const x of pend) {
       if (PROG[x.id]?.cls) continue;
-      PROG[x.id] = runs ? await etapa(x, runs) : {p: 50, txt: 'Processando…', ind: true};
-      if (PROG[x.id].reload || !runs) recarregar = true;
+      PROG[x.id] = runs ? await etapa(x, runs) : {p: 50, txt: 'Processando… (conferindo a cada 30 s)', ind: true};
+      if (PROG[x.id].reload) recarregar = true;
     }
-    // Lê os dados direto do repositório (no máximo a cada 4 s) e conclui quando o post aparecer
-    if (recarregar && Date.now() - ultimoReload > 4000) { ultimoReload = Date.now(); await P.recarregar(true); }
+    // Ao concluir, lê direto do repositório (rápido); sem a API, confere o site a cada 30 s
+    if (recarregar && agoraMs - ultimoReload > 4000) { ultimoReload = agoraMs; await P.recarregar(apiDisponivel()); }
+    else if (!runs && agoraMs - ultimoReload > 30000) { ultimoReload = agoraMs; await P.recarregar(false); }
     const ids = new Set(posts().map(p => p.id));
     let mudou = false;
     pend.forEach(x => {
