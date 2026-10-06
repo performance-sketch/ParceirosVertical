@@ -68,7 +68,7 @@
     const tipos = ['Reel', 'Post', 'Carrossel'].map(t => `<option>${t}</option>`).join('');
     $('v-conteudos').innerHTML = `
       <div class="hero">
-        <div class="eyebrow">Biblioteca de posts · Instagram</div>
+        <div class="eyebrow"><span id="c-modo-badge" class="modo"></span> Biblioteca de posts · Instagram</div>
         <h1 id="c-head"></h1>
         <p class="lead" id="c-lead"></p>
       </div>
@@ -125,6 +125,7 @@
       </section>`;
 
     $('c-url').addEventListener('input', validarCampo);
+    $('c-creator').addEventListener('change', e => { e.target.dataset.manual = e.target.value ? '1' : ''; });
     $('c-form').addEventListener('submit', enviar);
     $('c-fcreator').addEventListener('change', e => P.setParceiro(e.target.value));
     $('c-ini').addEventListener('change', e => { C.ini = e.target.value; render(); });
@@ -160,8 +161,11 @@
     if (posts().some(p => p.id === a.id)) { msg.className = 'addmsg err'; msg.textContent = 'Esta publicação já está na biblioteca.'; return; }
     msg.textContent = a.reel ? 'Reel identificado.' : 'Post identificado. Se for carrossel, escolha "Carrossel" em Tipo de conteúdo — a página pública não diferencia post de carrossel.';
   }
-  const lerPend = () => { try { return JSON.parse(localStorage.getItem(PEND_KEY) || '[]'); } catch (_) { return []; } };
-  const gravarPend = l => { try { localStorage.setItem(PEND_KEY, JSON.stringify(l)); } catch (_) {} };
+  // Envios em andamento ficam guardados por login: quem divide o computador não vê os envios do outro
+  const chavePend = () => `${PEND_KEY}:${P.login}`;
+  const lerPend = () => { try { return JSON.parse(localStorage.getItem(chavePend()) || '[]'); } catch (_) { return []; } };
+  const gravarPend = l => { try { localStorage.setItem(chavePend(), JSON.stringify(l)); } catch (_) {} };
+  try { localStorage.removeItem(PEND_KEY); } catch (_) {}   // lista antiga, compartilhada entre logins
   const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 
   // Assina com a mesma chave que abre os dados do parceiro (conferida em instagram_sync.py) e envia ao Make
@@ -180,12 +184,15 @@
     validarCampo();
     if (!a || posts().some(p => p.id === a.id)) return;
     if (!MAKE_WEBHOOK) { msg.className = 'addmsg err'; msg.textContent = 'O envio de links ainda não foi configurado.'; return; }
+    // Admin precisa escolher o creator de propósito (sem padrão), para o post não cair na conta errada
     const login = D().admin ? $('c-creator').value : P.login;
+    if (!login) { msg.className = 'addmsg err'; msg.textContent = 'Escolha o creator dono desta publicação.'; $('c-creator').focus(); return; }
     const campos = {signer: P.login, login, url: a.url, tipo: $('c-tipo-in').value, ts: new Date().toISOString()};
     $('c-add').disabled = true; $('c-add').textContent = 'Enviando…';
     try {
       await enviarAssinado(campos);
-      gravarPend([...lerPend().filter(x => x.id !== a.id), {id: a.id, url: a.url, ts: campos.ts}]);
+      const creator = D().admin ? (D().parceiros || []).find(p => p.login === login)?.nome : null;
+      gravarPend([...lerPend().filter(x => x.id !== a.id), {id: a.id, url: a.url, ts: campos.ts, creator}]);
       PROG[a.id] = {p: 12, txt: 'Enviado · aguardando o GitHub receber'};
       $('c-url').value = ''; $('c-tipo-in').value = '';
       msg.className = 'addmsg ok';
@@ -207,7 +214,7 @@
     botao.disabled = true; botao.textContent = 'Excluindo…';
     try {
       await enviarAssinado(campos);
-      gravarPend([...lerPend().filter(x => x.id !== id), {id, url: p.url, ts: campos.ts, acao: 'excluir'}]);
+      gravarPend([...lerPend().filter(x => x.id !== id), {id, url: p.url, ts: campos.ts, acao: 'excluir', creator: D().admin ? p.creator : null}]);
       PROG[id] = {p: 12, txt: 'Pedido enviado · aguardando o GitHub receber'};
       $('c-dlg').close();
       const msg = $('c-msg');
@@ -321,7 +328,7 @@
     const l = lerPend();
     $('c-pend').innerHTML = l.map(x => {
       const g = PROG[x.id] || {p: 8, txt: 'Enviando…'};
-      return `<div class="pg ${g.cls || ''}"><div class="pg-top"><a href="${esc(x.url)}" target="_blank" rel="noopener">${x.acao === 'excluir' ? 'Excluir · ' : ''}${esc(x.url)}</a>
+      return `<div class="pg ${g.cls || ''}"><div class="pg-top"><a href="${esc(x.url)}" target="_blank" rel="noopener">${x.acao === 'excluir' ? 'Excluir · ' : ''}${x.creator ? esc(x.creator) + ' · ' : ''}${esc(x.url)}</a>
         <span class="pg-t ${g.cls || ''}">${esc(g.txt)}</span></div>
         <div class="pg-bar${g.ind ? ' ind' : ''}" role="progressbar" aria-label="${esc(g.txt)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${g.p}"><i style="width:${g.p}%"></i></div></div>`;
     }).join('');
@@ -335,13 +342,21 @@
     const d = D(), admin = d.admin, sel = admin ? P.parceiro : d.parceiro.nome, geral = admin && !sel;
     const lst = filtrados(), comM = lst.filter(p => inter(p) != null);
     $('h-ciclo').textContent = 'Biblioteca de posts · Instagram';
+    // Modo de visão: o arquivo de cada parceiro só contém os posts dele; o do admin, todos
+    $('c-modo-badge').textContent = admin ? 'Visão do administrador' : 'Visão do parceiro';
+    $('c-modo-badge').title = admin ? (sel ? `Filtrando: ${sel}` : 'Todos os creators') : 'Somente as suas publicações';
 
     // Selects de creator (admin)
     $('c-f-creator').classList.toggle('hidden', !admin);
     $('c-f-filtro-creator').classList.toggle('hidden', !admin);
     if (admin) {
       const ps = [...(d.parceiros || [])].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
-      $('c-creator').innerHTML = ps.map(p => `<option value="${esc(p.login)}"${p.nome === sel ? ' selected' : ''}>${esc(p.nome)}</option>`).join('');
+      // Sem creator padrão: vem preenchido só quando o admin está filtrando um creator
+      const escolhido = $('c-creator').dataset.manual ? $('c-creator').value : '';
+      $('c-creator').innerHTML = '<option value="">Selecione o creator…</option>' + ps.map(p => {
+        const on = sel ? p.nome === sel : p.login === escolhido;
+        return `<option value="${esc(p.login)}"${on ? ' selected' : ''}>${esc(p.nome)}</option>`;
+      }).join('');
       $('c-fcreator').innerHTML = '<option value="">Todos os creators</option>' + ps.map(p => `<option${p.nome === sel ? ' selected' : ''}>${esc(p.nome)}</option>`).join('');
     }
 
@@ -350,7 +365,10 @@
     $('c-head').innerHTML = !lst.length ? 'Nenhuma publicação na biblioteca ainda.'
       : geral ? `${int(lst.length)} publicaç${lst.length === 1 ? 'ão' : 'ões'} de ${int(nCreators)} creator${nCreators === 1 ? '' : 's'}${totInter != null ? ` · <span class="pos">${int(totInter)}</span> interações` : ''}.`
       : `${admin ? esc(sel) + ' tem' : 'Você tem'} ${int(lst.length)} publicaç${lst.length === 1 ? 'ão' : 'ões'} na biblioteca${totInter != null ? ` · <span class="pos">${int(totInter)}</span> interações` : ''}.`;
-    $('c-lead').textContent = 'Métricas públicas coletadas sem login, uma vez por dia, direto da página de cada publicação.' +
+    $('c-lead').textContent = (admin
+        ? (sel ? `Você está vendo só as publicações de ${sel}. ` : 'Você está vendo as publicações de todos os creators. ')
+        : 'Você vê somente as suas publicações — as dos outros parceiros não aparecem aqui. ') +
+      'Métricas públicas coletadas sem login, uma vez por dia, direto da página de cada publicação.' +
       (temViews(lst) ? '' : ' Visualizações, compartilhamentos e reposts não são exibidos publicamente pelo Instagram e aparecem como "—".');
 
     renderPend();
