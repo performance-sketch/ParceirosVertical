@@ -102,6 +102,30 @@ def extrair_reservas_cupom(reservas, data_inicio, pedidos=frozenset()):
     return saida
 
 
+# ─── Ranking por ciclo (gamificação) ──────────────────────────────────────────
+def ciclo_de(data):
+    """Ciclo de análise de uma data: dia 26 do mês anterior a 25 do mês → 'AAAA-MM'."""
+    y, m, d = map(int, data.split("-"))
+    if d >= 26:
+        m += 1
+        if m > 12:
+            m, y = 1, y + 1
+    return f"{y}-{m:02d}"
+
+
+def ranking_por_ciclo(reservas, dono):
+    """{ciclo: [login, ...]} do 1º ao último por receita (comissão é % fixo), desempate por reservas."""
+    tot = {}
+    for r in reservas:
+        login = dono(r)
+        if not login:
+            continue
+        t = tot.setdefault(ciclo_de(r["criado"]), {}).setdefault(login, [0.0, 0])
+        t[0] += r["valor"]
+        t[1] += 1
+    return {c: sorted(g, key=lambda l: (-g[l][0], -g[l][1], l)) for c, g in sorted(tot.items())}
+
+
 # ─── Criptografia ─────────────────────────────────────────────────────────────
 def nome_arquivo(login):
     return hashlib.sha256(f"pv-file:{login}".encode()).hexdigest()[:24] + ".json"
@@ -164,6 +188,8 @@ def main():
 
     gerado_em = datetime.now(timezone.utc).isoformat(timespec="seconds")
     cupom_para_parceiro = {c.upper(): login for login, p in parceiros.items() for c in p["cupons"]}
+    dono = lambda r: pedido_para_parceiro.get(r["n"].upper()) or cupom_para_parceiro.get(r["cupom"])
+    rank_ciclos = ranking_por_ciclo(reservas, dono)
 
     DATA_DIR.mkdir(exist_ok=True)
     validos = set()
@@ -178,6 +204,9 @@ def main():
             "gerado_em": gerado_em, "comissao_pct": pct, "data_inicio": data_inicio,
             "admin": False, "parceiro": {"login": login, "nome": p["nome"], "tipo": p.get("tipo", "Parceiro"), "cupons": sorted(cupons)},
             "reservas": [r for r in reservas if r["cupom"] in cupons or r["n"].upper() in pedidos],
+            # Só a própria posição em cada ciclo — valores dos outros parceiros não são expostos
+            "ranking_ciclos": {c: {"pos": lst.index(login) + 1, "total": len(lst)}
+                               for c, lst in rank_ciclos.items() if login in lst},
         }
         validos.add(gravar(payload, login, senhas[login]))
         print(f"  ok {login}: {len(payload['reservas'])} reservas")
@@ -190,8 +219,8 @@ def main():
             "gerado_em": gerado_em, "comissao_pct": pct, "data_inicio": data_inicio,
             "admin": True, "parceiro": {"login": admin, "nome": "Vertical Rio", "cupons": []},
             "parceiros": [{"login": l, "nome": p["nome"], "tipo": p.get("tipo", "Parceiro"), "cupons": p["cupons"]} for l, p in parceiros.items()],
-            "reservas": [dict(r, parceiro=nomes.get(pedido_para_parceiro.get(r["n"].upper()) or cupom_para_parceiro.get(r["cupom"]), "Sem parceiro"))
-                         for r in reservas],
+            "reservas": [dict(r, parceiro=nomes.get(dono(r), "Sem parceiro")) for r in reservas],
+            "ranking_ciclos": {c: [nomes[l] for l in lst] for c, lst in rank_ciclos.items()},
         }
         validos.add(gravar(payload, admin, senhas[admin]))
         print(f"  ok {admin} (admin): {len(reservas)} reservas")

@@ -131,6 +131,36 @@ td.r,th.r{text-align:right}
 .code{font-weight:600;font-size:12px;letter-spacing:.04em;padding:3px 8px;border-radius:6px;background:var(--soft)}
 .vazio{color:var(--muted);text-align:center;padding:40px 16px;font-size:14px}
 
+/* ── Conquistas ──────────────────────────────────────── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+@media (max-width:1000px){.stats{grid-template-columns:repeat(2,1fr);gap:10px}}
+.stat{border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;min-width:0}
+.stat .l{font-size:13px;font-weight:500;color:var(--ink2)}
+.stat .v{font:700 24px/1.15 "Inter Tight",Inter,sans-serif;letter-spacing:-.02em;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat .v small{font:500 14px Inter,sans-serif;letter-spacing:0;margin-left:3px}
+.stat .v small.pre{margin:0 2px 0 0}
+.stat .s{font-size:12px;color:var(--muted);margin-top:4px}
+.selos{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+@media (max-width:640px){.selos{grid-template-columns:repeat(2,1fr);gap:10px}.stat{padding:16px}.stat .v{font-size:20px}}
+.selo{position:relative;border:1px solid var(--line);border-radius:var(--radius);padding:22px 16px 18px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;min-width:0}
+.selo .md{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:#fff;margin-bottom:10px;font:800 17px "Inter Tight",Inter,sans-serif;letter-spacing:-.02em}
+.selo .md svg{width:28px;height:28px}
+.selo.off .md{background:var(--soft);color:var(--faint);box-shadow:inset 0 0 0 1px var(--line)}
+.selo .nm{font-weight:600;font-size:14px;line-height:1.3}
+.selo .ds{font-size:12px;color:var(--muted);line-height:1.4}
+.selo .prog{width:100%;max-width:140px;height:5px;background:var(--soft);border-radius:999px;overflow:hidden;margin-top:8px}
+.selo .prog i{display:block;height:100%;background:var(--ink);border-radius:999px}
+.selo.novo{border-color:var(--ink)}
+.selo .tag{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--ink);color:#fff;padding:3px 7px;border-radius:999px}
+.dest{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.dst{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;background:#fff;cursor:pointer;text-align:left;width:100%;min-width:0}
+.dst:hover{border-color:#c9c9cf}
+.dst .md{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:#fff}
+.dst .md svg{width:20px;height:20px}
+.dst .x{font-size:12px;color:var(--muted);font-weight:500}
+.dst .nm{font-weight:600;font-size:15px}
+.dst .s{font-size:13px;color:var(--ink2)}
+
 /* ── Footer ──────────────────────────────────────────── */
 footer{border-top:1px solid var(--line);margin-top:24px;padding:40px 0 48px;text-align:center}
 footer .logo{height:44px;margin:0 auto 14px;opacity:.45}
@@ -193,6 +223,12 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
 
     <div class="kpis" id="kpis"></div>
 
+    <section class="bloco hidden" id="bloco-conq">
+      <div class="sec-h"><h2>Conquistas</h2><span class="num" id="cont-conq" style="color:var(--muted)"></span></div>
+      <div class="stats" id="stats"></div>
+      <div class="selos" id="selos"></div>
+    </section>
+
     <section class="bloco" id="bloco-ranking">
       <div class="sec-h">
         <h2>Ranking Parceiros</h2>
@@ -205,6 +241,11 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
       </div>
       <div class="rank" id="rank"></div>
       <div class="mais" id="mais"></div>
+    </section>
+
+    <section class="bloco hidden" id="bloco-destaques">
+      <div class="sec-h"><h2>Creator destaque do mês</h2></div>
+      <div class="dest" id="dest"></div>
     </section>
 
     <section class="bloco" id="bloco-ciclos">
@@ -341,11 +382,11 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
     document.querySelectorAll('#tabs-rank .tab').forEach(t => t.classList.toggle('on', t.dataset.m === m));
     render();
   });
-  $('rank').addEventListener('click', e => {
+  ['rank', 'dest'].forEach(id => $(id).addEventListener('click', e => {
     const b = e.target.closest('[data-parc]'); if (!b) return;
     F.parceiro = b.dataset.parc; $('sel-parceiro').value = F.parceiro; render();
     window.scrollTo({top: 0, behavior: 'smooth'});
-  });
+  }));
   $('mais').addEventListener('click', e => { if (e.target.closest('button')) { F.todos = !F.todos; render(); } });
 
   function usarCiclo(id) {
@@ -453,6 +494,9 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
     $('kpis').innerHTML = K.map(([l, val, d]) => `<div class="kpi"><div class="l">${l}</div><div class="v num">${val}</div>${deltaHTML(d)}<div class="vs">${vs}</div></div>`).join('');
 
     if (D.admin) renderRanking(rank);
+    $('bloco-conq').classList.toggle('hidden', geral);
+    $('bloco-destaques').classList.toggle('hidden', !geral);
+    if (geral) renderDestaques(); else renderConquistas(D.admin ? quem : null);
     renderCiclos();
 
     // Tabela
@@ -504,6 +548,111 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
       </button>`;
     }).join('') : '<div class="vazio">Nenhum parceiro com reservas no período.</div>';
     $('mais').innerHTML = total > 5 ? `<button type="button" class="btn">${F.todos ? 'Mostrar menos' : `Ver todos os ${total} parceiros`}</button>` : '';
+  }
+
+  // ─── Conquistas: sempre sobre todo o histórico, independente do filtro ────
+  const METAS = [5000, 10000, 25000, 50000];
+  const SVG = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+  const ICO = {
+    estrela: SVG('<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>'),
+    trofeu: SVG('<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8"/>'),
+    ticket: SVG('<path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z"/><path d="M15 7v2M15 11v2M15 15v2"/>'),
+    chama: SVG('<path d="M12 3c.5 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.4 1.3-3.6 2-5 .8 1.3 1.6 2 2 2-.4-2.6.1-5 1-7z"/>'),
+    coroa: SVG('<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>'),
+  };
+  const cicloId = s => { const {y, m} = cicloDe(s); return `${y}-${pad(m)}`; };
+  const ord = n => n + 'º';
+
+  // nomeSel: parceiro escolhido pelo admin; null = o próprio parceiro logado
+  function conquistas(nomeSel) {
+    const minhas = D.reservas.filter(r => r.parceiro !== SEM && (!nomeSel || r.parceiro === nomeSel))
+      .sort((a, b) => a.criado.localeCompare(b.criado));
+    const por = {};
+    minhas.forEach(r => { const c = por[cicloId(r.criado)] ||= {receita: 0, res: 0}; c.receita += r.valor; c.res++; });
+    const serie = listaCiclos().reverse().map(c => ({...c, receita: por[c.id]?.receita || 0, res: por[c.id]?.res || 0}));
+    const atual = serie[serie.length - 1];
+
+    let acc = 0; const quando = {};
+    minhas.forEach(r => { acc += r.valor; METAS.forEach(m => { if (acc >= m && !quando[m]) quando[m] = r.criado; }); });
+
+    // Recorde pessoal: melhor ciclo e quantas vezes um ciclo superou todos os anteriores
+    const recorde = campo => {
+      let melhor = null, quebras = 0;
+      serie.forEach(c => {
+        if (!c[campo]) return;
+        if (melhor && c[campo] > melhor[campo]) quebras++;
+        if (!melhor || c[campo] > melhor[campo]) melhor = c;
+      });
+      return {melhor, quebras};
+    };
+    const recFat = recorde('receita'), recRes = recorde('res');
+
+    // Sequência de ciclos com venda; o ciclo em andamento ainda sem venda não quebra a sequência
+    let seq = 0, melhorSeq = 0, seqAtual = 0;
+    serie.forEach(c => { seq = c.res ? seq + 1 : 0; melhorSeq = Math.max(melhorSeq, seq); });
+    for (let i = serie.length - (atual.res ? 1 : 2); i >= 0 && serie[i].res; i--) seqAtual++;
+
+    const RC = D.ranking_ciclos || {};
+    const posDe = id => {
+      const x = RC[id]; if (!x) return null;
+      if (!Array.isArray(x)) return x;
+      const p = x.indexOf(nomeSel); return p < 0 ? null : {pos: p + 1, total: x.length};
+    };
+    const destaques = serie.filter(c => c !== atual && posDe(c.id)?.pos === 1);
+
+    return {total: acc, primeira: minhas[0]?.criado, quando, recFat, recRes, seqAtual, melhorSeq, destaques, atual, posAtual: posDe(atual.id)};
+  }
+
+  function renderConquistas(nomeSel) {
+    const C = conquistas(nomeSel), A = C.atual;
+    const selo = (ico, nm, ok, ds, prog = null, novo = false) => ({ico, nm, ok, ds, prog, novo});
+    const recSelo = (rec, ico, nm, fmt, campo) => {
+      const m = rec.melhor;
+      if (rec.quebras) return selo(ico, nm, true, `${fmt(m[campo])} em ${m.nome}`, null, m === A);
+      if (!m) return selo(ico, nm, false, 'Venda em dois ciclos e supere o primeiro');
+      return selo(ico, nm, false, `Supere ${fmt(m[campo])} (${m.nome})`, m === A ? null : A[campo] / m[campo]);
+    };
+    const S = [
+      selo(ICO.estrela, 'Primeira venda', !!C.primeira, C.primeira ? `Em ${dBR(C.primeira)}` : 'A primeira reserva confirmada com cupom'),
+      ...METAS.map(m => selo(`${m / 1000}k`, `R$ ${int(m / 1000)} mil em vendas`, !!C.quando[m],
+        C.quando[m] ? `Alcançado em ${dBR(C.quando[m])}` : `${brl(C.total)} de ${brl(m)}`, C.quando[m] ? null : C.total / m)),
+      recSelo(C.recFat, ICO.trofeu, 'Recorde de faturamento', brl, 'receita'),
+      recSelo(C.recRes, ICO.ticket, 'Recorde de reservas', v => `${int(v)} reserva${v === 1 ? '' : 's'}`, 'res'),
+      selo(ICO.chama, '3 ciclos seguidos vendendo', C.melhorSeq >= 3,
+        C.melhorSeq >= 3 ? `Melhor sequência: ${C.melhorSeq} ciclos` : `${C.seqAtual} de 3 ciclos seguidos`, C.melhorSeq >= 3 ? null : C.seqAtual / 3),
+      selo(ICO.coroa, 'Creator destaque do mês', C.destaques.length > 0,
+        C.destaques.length ? `${C.destaques.length}× · último em ${C.destaques[C.destaques.length - 1].nome}`
+          : C.posAtual ? `${ord(C.posAtual.pos)} lugar no ciclo atual` : 'Lidere o ranking de um ciclo fechado',
+        null, C.destaques.length > 0 && C.destaques[C.destaques.length - 1].id === listaCiclos()[1]?.id),
+    ];
+    const ok = S.filter(s => s.ok).length;
+    $('cont-conq').textContent = `${ok} de ${S.length} conquistadas`;
+
+    const fat = C.recFat.melhor, res = C.recRes.melhor;
+    $('stats').innerHTML = [
+      ['Posição no ciclo atual', C.posAtual ? `${ord(C.posAtual.pos)}<small>de ${C.posAtual.total}</small>` : '—', A.nome],
+      ['Recorde de faturamento', fat ? brlBig(fat.receita).replace('<small>', '<small class="pre">') : '—', fat ? fat.nome : 'Sem vendas ainda'],
+      ['Recorde de reservas', res ? `${int(res.res)}<small>reserva${res.res === 1 ? '' : 's'}</small>` : '—', res ? res.nome : 'Sem vendas ainda'],
+      ['Sequência atual', `${int(C.seqAtual)}<small>ciclo${C.seqAtual === 1 ? '' : 's'}</small>`, `Melhor: ${int(C.melhorSeq)} ciclo${C.melhorSeq === 1 ? '' : 's'} seguidos`],
+    ].map(([l, v, s]) => `<div class="stat"><div class="l">${l}</div><div class="v num">${v}</div><div class="s">${esc(s)}</div></div>`).join('');
+
+    $('selos').innerHTML = S.map(s => `<div class="selo${s.ok ? '' : ' off'}${s.novo ? ' novo' : ''}">
+      ${s.novo ? '<span class="tag">Novo</span>' : ''}<div class="md">${s.ico}</div>
+      <div class="nm">${esc(s.nm)}</div><div class="ds">${esc(s.ds)}</div>
+      ${s.prog !== null ? `<div class="prog"><i style="width:${Math.min(100, s.prog * 100).toFixed(1)}%"></i></div>` : ''}
+    </div>`).join('');
+  }
+
+  function renderDestaques() {
+    const RC = D.ranking_ciclos || {};
+    const cards = listaCiclos().slice(1, 7).filter(c => RC[c.id]?.length).map(c => {
+      const nome = RC[c.id][0];
+      const r = resumo(D.reservas.filter(x => x.parceiro === nome && x.criado >= c.ini && x.criado <= c.fim));
+      return `<button type="button" class="dst" data-parc="${esc(nome)}"><span class="md">${ICO.coroa}</span>
+        <span style="min-width:0"><div class="x">${c.nome}</div><div class="nm">${esc(nome)}</div>
+        <div class="s num">${brl(r.com)} · ${int(r.res)} reserva${r.res === 1 ? '' : 's'}</div></span></button>`;
+    });
+    $('dest').innerHTML = cards.length ? cards.join('') : '<div class="vazio">Nenhum ciclo fechado com vendas ainda.</div>';
   }
 
   function renderCiclos() {
