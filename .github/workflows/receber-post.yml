@@ -1,17 +1,17 @@
 name: Receber post de creator
 
 # Disparado pelo cenário do Make (repository_dispatch) quando um creator envia um link no portal.
-# Só grava o envio em instagram/inbox/; a validação e a coleta ficam com o update.yml.
+# 1) gravar:     guarda o envio em instagram/inbox/ (nunca é cancelado; o update.yml também processa a caixa de entrada)
+# 2) processar:  caminho rápido — coleta o post e atualiza só a biblioteca nos dados publicados, sem consultar o Rezdy
 on:
   repository_dispatch:
     types: [novo-post]
 
 jobs:
-  receber:
+  gravar:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: write
     steps:
       - uses: actions/checkout@v4
 
@@ -36,10 +36,47 @@ jobs:
           git add instagram/inbox
           git diff --cached --quiet && exit 0
           git commit -m "chore: novo post na caixa de entrada [skip ci]"
-          for i in 1 2 3 4 5; do git pull --rebase -q && git push -q && exit 0; sleep $((i * 5)); done
+          for i in 1 2 3 4 5; do git pull --rebase -q && git push -q && exit 0; sleep $((i * 3)); done
           exit 1
 
-      - name: Processar agora
+  processar:
+    needs: gravar
+    runs-on: ubuntu-latest
+    # Mesma fila do update.yml: nunca dois jobs gravando data/ ao mesmo tempo
+    concurrency:
+      group: update-data
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - run: pip install -r requirements.txt
+
+      - name: Registrar envio e coletar métricas públicas do Instagram
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run update.yml --ref main
+          PARCEIROS_SENHAS: ${{ secrets.PARCEIROS_SENHAS }}
+        run: python scripts/instagram_sync.py
+
+      - name: Atualizar a biblioteca nos dados publicados (sem Rezdy)
+        env:
+          PARCEIROS_SENHAS: ${{ secrets.PARCEIROS_SENHAS }}
+        run: python scripts/build_data.py --somente-posts
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A data instagram
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: novo post na biblioteca [skip ci]"
+          for i in 1 2 3 4 5; do git pull --rebase -q && git push -q && exit 0; sleep $((i * 3)); done
+          exit 1

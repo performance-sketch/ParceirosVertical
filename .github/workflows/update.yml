@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [config.json, 'scripts/**']
+    paths: [config.json, 'scripts/**', requirements.txt]
 
 concurrency:
   group: update-data
@@ -23,8 +23,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements.txt
 
-      - run: pip install requests cryptography pillow
+      - run: pip install -r requirements.txt
 
       - name: Biblioteca de posts — registrar envios e coletar métricas públicas do Instagram
         env:

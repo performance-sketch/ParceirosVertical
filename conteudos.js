@@ -191,54 +191,78 @@
     }
   }
   // ─── Progresso do envio ───────────────────────────────────────────────────
-  // Acompanha as automações pela API pública do GitHub (sem login): recebimento → coleta → publicação.
-  // Ao final recarrega os dados do portal. Se a API não responder, a barra fica indeterminada
-  // e o portal segue conferindo os dados publicados.
-  const RUNS_API = 'https://api.github.com/repos/performance-sketch/ParceirosVertical/actions/runs?per_page=20';
-  const PROG = {};          // id → {p, txt, cls, ind}
-  let etag = null, runs = [], timer = null, ultimoReload = 0;
+  // Acompanha as automações pela API pública do GitHub (sem login) e, ao final, lê os dados
+  // direto do repositório (sem esperar o Pages). Se a API não responder, a barra fica
+  // indeterminada e o portal segue conferindo os dados publicados.
+  const GH = 'https://api.github.com/repos/performance-sketch/ParceirosVertical/actions/runs';
+  const PROG = {};          // id → {p, txt, cls, ind, fim}
+  const cacheGH = {};       // url → {etag, json}: respostas 304 não contam no limite da API
+  let timer = null, ultimoReload = 0, ocupado = false;
   const ms = s => new Date(s).getTime();
   const primeiro = (lista, f) => lista.filter(f).sort((a, b) => ms(a.created_at) - ms(b.created_at))[0];
 
-  async function buscarRuns() {
+  async function gh(url) {
+    const c = cacheGH[url];
     try {
-      const r = await fetch(RUNS_API, {headers: etag ? {'If-None-Match': etag} : {}, cache: 'no-store'});
-      if (r.status === 304) return runs;
+      const r = await fetch(url, {headers: c ? {'If-None-Match': c.etag} : {}, cache: 'no-store'});
+      if (r.status === 304 && c) return c.json;
       if (!r.ok) return null;
-      etag = r.headers.get('ETag'); runs = (await r.json()).workflow_runs || [];
-      return runs;
+      const json = await r.json();
+      cacheGH[url] = {etag: r.headers.get('ETag'), json};
+      return json;
     } catch (_) { return null; }
   }
 
-  function etapa(x, rs) {
+  // Caminho rápido: receber-post.yml (gravar → processar). Reserva: update.yml, que também processa a caixa de entrada.
+  async function etapa(x, runs) {
     const desde = ms(x.ts) - 15000;
-    const rec = primeiro(rs, r => r.path.endsWith('receber-post.yml') && ms(r.created_at) >= desde);
+    const rec = primeiro(runs, r => r.path.endsWith('receber-post.yml') && ms(r.created_at) >= desde);
     if (!rec) return Date.now() - ms(x.ts) > 90000
       ? {p: 12, txt: 'Na fila do Make · aguardando encaminhamento ao GitHub'}
       : {p: 12, txt: 'Enviado · aguardando o GitHub receber'};
-    if (rec.status !== 'completed') return {p: 28, txt: 'Recebido · registrando o link'};
-    if (rec.conclusion !== 'success') return {p: 100, txt: 'Falha ao registrar o envio. Tente adicionar de novo.', cls: 'err'};
-    const upd = primeiro(rs, r => r.path.endsWith('update.yml') && ms(r.created_at) >= ms(rec.created_at));
-    if (!upd) return {p: 42, txt: 'Link registrado · aguardando a coleta'};
-    if (upd.status !== 'completed') return {p: 62, txt: 'Coletando métricas públicas no Instagram'};
-    if (upd.conclusion !== 'success') return {p: 100, txt: 'Falha na coleta. Nova tentativa automática em até 15 min.', cls: 'err'};
-    const pg = primeiro(rs, r => r.name === 'pages-build-deployment' && ms(r.created_at) >= ms(upd.created_at));
-    if (!pg || pg.status !== 'completed') return {p: 82, txt: 'Métricas coletadas · publicando no portal'};
-    return {p: 94, txt: 'Publicado · carregando no portal'};
+    if (rec.status === 'completed' && rec.conclusion === 'success') return {p: 94, txt: 'Concluindo · carregando no portal', reload: true};
+    const jobs = ((await gh(`${GH}/${rec.id}/jobs`)) || {}).jobs || [];
+    const gravar = jobs.find(j => j.name === 'gravar'), proc = jobs.find(j => j.name === 'processar');
+    if (!gravar || gravar.status !== 'completed') return {p: 25, txt: 'Recebido · registrando o link'};
+    if (gravar.conclusion !== 'success') return {p: 100, txt: 'Falha ao registrar o envio. Tente adicionar de novo.', cls: 'err'};
+    if (!proc || proc.status === 'queued' || proc.status === 'waiting' || proc.status === 'pending')
+      return {p: 40, txt: 'Link registrado · aguardando a vez na fila'};
+    if (proc.status === 'completed' && proc.conclusion === 'cancelled') {
+      // Foi para a atualização automática (update.yml), que processa a caixa de entrada
+      const upd = primeiro(runs, r => r.path.endsWith('update.yml') && ms(r.created_at) >= ms(rec.created_at));
+      if (upd && upd.status === 'completed') return upd.conclusion === 'success'
+        ? {p: 94, txt: 'Concluindo · carregando no portal', reload: true}
+        : {p: 100, txt: 'Falha na coleta. Nova tentativa automática em até 15 min.', cls: 'err'};
+      return {p: 55, txt: upd ? 'Coletando métricas na atualização automática' : 'Na fila da atualização automática (até 15 min)'};
+    }
+    if (proc.status === 'completed') return proc.conclusion === 'success'
+      ? {p: 94, txt: 'Concluindo · carregando no portal', reload: true}
+      : {p: 100, txt: 'Falha na coleta. Nova tentativa automática em até 15 min.', cls: 'err'};
+    const passo = (proc.steps || []).find(s => s.status === 'in_progress')?.name || '';
+    if (passo.startsWith('Atualizar')) return {p: 76, txt: 'Métricas coletadas · atualizando a biblioteca'};
+    if (passo === 'Commit') return {p: 86, txt: 'Salvando no repositório'};
+    if (passo.startsWith('Registrar')) return {p: 60, txt: 'Coletando métricas públicas no Instagram'};
+    return {p: 50, txt: 'Preparando a coleta'};
   }
 
   async function acompanhar() {
+    if (ocupado) return;
+    ocupado = true;
+    try { await verificar(); } finally { ocupado = false; }
+  }
+
+  async function verificar() {
     const pend = lerPend();
     if (!pend.length) { clearInterval(timer); timer = null; return; }
-    const rs = await buscarRuns();
+    const runs = ((await gh(GH + '?per_page=20')) || {}).workflow_runs;
     let recarregar = false;
-    pend.forEach(x => {
-      if (PROG[x.id]?.cls) return;
-      PROG[x.id] = rs ? etapa(x, rs) : {p: 50, txt: 'Processando…', ind: true};
-      if (PROG[x.id].p >= 82 || !rs) recarregar = true;
-    });
-    // Confere os dados publicados (no máximo a cada 10 s) e conclui quando o post aparecer
-    if (recarregar && Date.now() - ultimoReload > 10000) { ultimoReload = Date.now(); await P.recarregar(); }
+    for (const x of pend) {
+      if (PROG[x.id]?.cls) continue;
+      PROG[x.id] = runs ? await etapa(x, runs) : {p: 50, txt: 'Processando…', ind: true};
+      if (PROG[x.id].reload || !runs) recarregar = true;
+    }
+    // Lê os dados direto do repositório (no máximo a cada 4 s) e conclui quando o post aparecer
+    if (recarregar && Date.now() - ultimoReload > 4000) { ultimoReload = Date.now(); await P.recarregar(true); }
     const ids = new Set(posts().map(p => p.id));
     let mudou = false;
     pend.forEach(x => {
@@ -262,7 +286,7 @@
         <span class="pg-t ${g.cls || ''}">${esc(g.txt)}</span></div>
         <div class="pg-bar${g.ind ? ' ind' : ''}" role="progressbar" aria-label="${esc(g.txt)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${g.p}"><i style="width:${g.p}%"></i></div></div>`;
     }).join('');
-    if (l.length && !timer) { timer = setInterval(acompanhar, 5000); acompanhar(); }
+    if (l.length && !timer) { timer = setInterval(acompanhar, 3000); acompanhar(); }
   }
 
   // ─── Render ───────────────────────────────────────────────────────────────

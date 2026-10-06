@@ -446,11 +446,22 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
       iniciar();
     } catch (_) { try { sessionStorage.removeItem(SESS); } catch (__) {} }
   }
-  async function recarregar() {
-    if (!chaveAtual) return false;
-    try { D = await abrir(await baixar(loginAtual), chaveAtual); render(); return true; } catch (_) { return false; }
+  // fresco=true lê direto do repositório pela API do GitHub (atualizado logo após o commit,
+  // sem esperar a publicação do Pages); se a API não responder, usa o Pages.
+  async function baixarRepo(login) {
+    const arq = (await sha256hex('pv-file:' + login)).slice(0, 24) + '.json';
+    const r = await fetch(`https://api.github.com/repos/performance-sketch/ParceirosVertical/contents/data/${arq}?ref=main`,
+      {headers: {Accept: 'application/vnd.github.raw+json'}, cache: 'no-store'});
+    if (!r.ok) throw new Error('api');
+    return r.json();
   }
-  setInterval(recarregar, 5 * 60 * 1000);
+  async function recarregar(fresco = false) {
+    if (!chaveAtual) return false;
+    let env = null;
+    if (fresco) try { env = await baixarRepo(loginAtual); } catch (_) {}
+    try { D = await abrir(env || await baixar(loginAtual), chaveAtual); render(); return true; } catch (_) { return false; }
+  }
+  setInterval(() => recarregar(), 5 * 60 * 1000);
 
   // ─── Abas Vendas / Conteúdos ─────────────────────────────────────────────
   const VIEW_KEY = 'pv_view';

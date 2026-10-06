@@ -12,6 +12,7 @@ Variáveis de ambiente:
 """
 
 import base64
+import functools
 import hashlib
 import hmac
 import json
@@ -192,14 +193,64 @@ def gravar(payload, login, senha):
     return arq.name
 
 
-def criptografar(payload, login, senha):
+@functools.lru_cache(maxsize=None)
+def chave_de(login, senha):
     kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32,
                      salt=salt_login(login), iterations=PBKDF2_ITER)
-    chave = kdf.derive(senha.encode("utf-8"))
+    return kdf.derive(senha.encode("utf-8"))
+
+
+def descriptografar(login, senha):
+    """Abre o arquivo publicado de um login (None se não existir)."""
+    arq = DATA_DIR / nome_arquivo(login)
+    if not arq.exists():
+        return None
+    env = json.loads(arq.read_text(encoding="utf-8"))
+    pt = AESGCM(chave_de(login, senha)).decrypt(base64.b64decode(env["iv"]), base64.b64decode(env["ct"]), None)
+    return json.loads(pt)
+
+
+def criptografar(payload, login, senha):
+    chave = chave_de(login, senha)
     iv = os.urandom(12)
     ct = AESGCM(chave).encrypt(iv, json.dumps(payload, ensure_ascii=False).encode("utf-8"), None)
     b64 = lambda x: base64.b64encode(x).decode()
     return {"v": 1, "iter": PBKDF2_ITER, "iv": b64(iv), "ct": b64(ct)}
+
+
+def preparar_posts(parceiros):
+    """Devolve f(login) com os campos da biblioteca de posts; login=None → visão do admin."""
+    posts = [p for p in carregar_posts() if p["login"] in parceiros]
+    rank_org = ranking_organico(posts)
+    com_inter = [p for p in posts if interacoes(p) is not None]
+    destaque = max(com_inter, key=interacoes)["id"] if com_inter else None
+    nomes = {login: p["nome"] for login, p in parceiros.items()}
+
+    def campos(login):
+        if login is None:
+            return {"posts": [post_publico(x) | {"creator": nomes[x["login"]]} for x in posts],
+                    "organico_ciclos": {c: [nomes[l] for l in lst] for c, lst in rank_org.items()},
+                    "post_destaque": destaque}
+        return {"posts": [post_publico(x) for x in posts if x["login"] == login],
+                "organico_ciclos": {c: {"pos": lst.index(login) + 1, "total": len(lst)}
+                                    for c, lst in rank_org.items() if login in lst},
+                "post_destaque": destaque if any(x["id"] == destaque and x["login"] == login for x in posts) else None}
+    return campos
+
+
+def atualizar_somente_posts(config, senhas):
+    """Modo rápido (novo post): reabre os arquivos publicados e troca só a biblioteca, sem consultar o Rezdy."""
+    parceiros = {k.lower(): v for k, v in config["parceiros"].items()}
+    campos_posts = preparar_posts(parceiros)
+    logins = [l for l in parceiros if l in senhas] + [a.lower() for a in config.get("admins", ["admin"]) if a.lower() in senhas]
+    for login in logins:
+        payload = descriptografar(login, senhas[login])
+        if payload is None:
+            print(f"  -- {login}: arquivo ainda não gerado — fica para o build completo")
+            continue
+        payload.update(campos_posts(None if payload.get("admin") else login))
+        gravar(payload, login, senhas[login])
+    print(f"  biblioteca de posts atualizada em {len(logins)} arquivos")
 
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
@@ -207,11 +258,14 @@ def main():
     _load_env()
     api_key = os.environ.get("REZDY_API_KEY") or os.environ.get("REZDY_KEY")
     senhas_raw = os.environ.get("PARCEIROS_SENHAS")
-    if not api_key or not senhas_raw:
+    somente_posts = "--somente-posts" in sys.argv
+    if not senhas_raw or not (api_key or somente_posts):
         sys.exit("Defina REZDY_API_KEY e PARCEIROS_SENHAS")
     senhas = {k.strip().lower(): v for k, v in json.loads(senhas_raw).items()}
 
     config = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
+    if somente_posts:
+        return atualizar_somente_posts(config, senhas)
     pct = float(config["comissao_pct"])
     data_inicio = config["data_inicio"]
     parceiros = {k.lower(): v for k, v in config["parceiros"].items()}
@@ -226,10 +280,7 @@ def main():
     dono = lambda r: pedido_para_parceiro.get(r["n"].upper()) or cupom_para_parceiro.get(r["cupom"])
     rank_ciclos = ranking_por_ciclo(reservas, dono)
 
-    posts = [p for p in carregar_posts() if p["login"] in parceiros]
-    rank_org = ranking_organico(posts)
-    com_inter = [p for p in posts if interacoes(p) is not None]
-    post_destaque = max(com_inter, key=interacoes)["id"] if com_inter else None
+    campos_posts = preparar_posts(parceiros)
 
     DATA_DIR.mkdir(exist_ok=True)
     validos = set()
@@ -247,11 +298,7 @@ def main():
             # Só a própria posição em cada ciclo — valores dos outros parceiros não são expostos
             "ranking_ciclos": {c: {"pos": lst.index(login) + 1, "total": len(lst)}
                                for c, lst in rank_ciclos.items() if login in lst},
-            "posts": [post_publico(x) for x in posts if x["login"] == login],
-            "organico_ciclos": {c: {"pos": lst.index(login) + 1, "total": len(lst)}
-                                for c, lst in rank_org.items() if login in lst},
-            "post_destaque": post_destaque if any(x["id"] == post_destaque and x["login"] == login for x in posts) else None,
-        }
+        } | campos_posts(login)
         validos.add(gravar(payload, login, senhas[login]))
         print(f"  ok {login}: {len(payload['reservas'])} reservas")
 
@@ -265,10 +312,7 @@ def main():
             "parceiros": [{"login": l, "nome": p["nome"], "tipo": p.get("tipo", "Parceiro"), "cupons": p["cupons"]} for l, p in parceiros.items()],
             "reservas": [dict(r, parceiro=nomes.get(dono(r), "Sem parceiro")) for r in reservas],
             "ranking_ciclos": {c: [nomes[l] for l in lst] for c, lst in rank_ciclos.items()},
-            "posts": [post_publico(x) | {"creator": nomes[x["login"]]} for x in posts],
-            "organico_ciclos": {c: [nomes[l] for l in lst] for c, lst in rank_org.items()},
-            "post_destaque": post_destaque,
-        }
+        } | campos_posts(None)
         validos.add(gravar(payload, admin, senhas[admin]))
         print(f"  ok {admin} (admin): {len(reservas)} reservas")
 
