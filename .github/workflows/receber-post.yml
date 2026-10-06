@@ -1,0 +1,45 @@
+name: Receber post de creator
+
+# Disparado pelo cenário do Make (repository_dispatch) quando um creator envia um link no portal.
+# Só grava o envio em instagram/inbox/; a validação e a coleta ficam com o update.yml.
+on:
+  repository_dispatch:
+    types: [novo-post]
+
+jobs:
+  receber:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Gravar envio na caixa de entrada
+        env:
+          PAYLOAD: ${{ toJSON(github.event.client_payload) }}
+        run: |
+          python3 - <<'EOF'
+          import hashlib, json, os, pathlib
+          p = json.loads(os.environ["PAYLOAD"] or "{}")
+          campos = {k: str(p.get(k, ""))[:500] for k in ("signer", "login", "url", "tipo", "ts", "sig")}
+          nome = hashlib.sha256(json.dumps(campos, sort_keys=True).encode()).hexdigest()[:16]
+          d = pathlib.Path("instagram/inbox"); d.mkdir(parents=True, exist_ok=True)
+          (d / f"{nome}.json").write_text(json.dumps(campos))
+          print("envio de", campos["login"], campos["url"])
+          EOF
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add instagram/inbox
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: novo post na caixa de entrada [skip ci]"
+          for i in 1 2 3 4 5; do git pull --rebase -q && git push -q && exit 0; sleep $((i * 5)); done
+          exit 1
+
+      - name: Processar agora
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run update.yml --ref main

@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [config.json, scripts/build_data.py]
+    paths: [config.json, 'scripts/**']
 
 concurrency:
   group: update-data
@@ -24,7 +24,12 @@ jobs:
         with:
           python-version: '3.12'
 
-      - run: pip install requests cryptography
+      - run: pip install requests cryptography pillow
+
+      - name: Biblioteca de posts — registrar envios e coletar métricas públicas do Instagram
+        env:
+          PARCEIROS_SENHAS: ${{ secrets.PARCEIROS_SENHAS }}
+        run: python scripts/instagram_sync.py
 
       - name: Buscar reservas no Rezdy e gerar dados criptografados
         env:
@@ -36,5 +41,8 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A data
-          git diff --cached --quiet || (git commit -m "chore: atualiza dados dos parceiros [skip ci]" && git push)
+          git add -A data instagram
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: atualiza dados dos parceiros [skip ci]"
+          for i in 1 2 3 4 5; do git pull --rebase -q && git push -q && exit 0; sleep $((i * 5)); done
+          exit 1

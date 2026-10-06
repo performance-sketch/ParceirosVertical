@@ -126,6 +126,41 @@ def ranking_por_ciclo(reservas, dono):
     return {c: sorted(g, key=lambda l: (-g[l][0], -g[l][1], l)) for c, g in sorted(tot.items())}
 
 
+# ─── Biblioteca de posts (Instagram) ──────────────────────────────────────────
+INTERACOES = ("curtidas", "comentarios", "compartilhamentos", "reposts")
+
+
+def interacoes(p):
+    """Soma só as interações publicamente disponíveis; None se nenhuma estiver."""
+    vals = [p["metricas"].get(k) for k in INTERACOES if p["metricas"].get(k) is not None]
+    return sum(vals) if vals else None
+
+
+def carregar_posts():
+    arq = ROOT / "instagram" / "posts.json"
+    return json.loads(arq.read_text(encoding="utf-8"))["posts"] if arq.exists() else []
+
+
+def post_publico(p):
+    """Campos que o portal exibe (legenda encurtada para o arquivo não crescer demais)."""
+    leg = p.get("legenda")
+    return {k: p.get(k) for k in ("id", "url", "tipo", "tipo_informado", "perfil", "nome", "publicado_em", "thumb",
+                                  "status", "erro", "ultima_coleta", "ultima_tentativa", "cadastrado_em",
+                                  "metricas", "aprox", "historico")} | {"legenda": leg[:700] + "…" if leg and len(leg) > 700 else leg}
+
+
+def ranking_organico(posts):
+    """{ciclo de publicação: [login, ...]} por interações totais; só posts com métricas coletadas."""
+    tot = {}
+    for p in posts:
+        i = interacoes(p)
+        if i is None or not p.get("publicado_em"):
+            continue
+        g = tot.setdefault(ciclo_de(p["publicado_em"]), {})
+        g[p["login"]] = g.get(p["login"], 0) + i
+    return {c: sorted(g, key=lambda l: (-g[l], l)) for c, g in sorted(tot.items())}
+
+
 # ─── Criptografia ─────────────────────────────────────────────────────────────
 def nome_arquivo(login):
     return hashlib.sha256(f"pv-file:{login}".encode()).hexdigest()[:24] + ".json"
@@ -191,6 +226,11 @@ def main():
     dono = lambda r: pedido_para_parceiro.get(r["n"].upper()) or cupom_para_parceiro.get(r["cupom"])
     rank_ciclos = ranking_por_ciclo(reservas, dono)
 
+    posts = [p for p in carregar_posts() if p["login"] in parceiros]
+    rank_org = ranking_organico(posts)
+    com_inter = [p for p in posts if interacoes(p) is not None]
+    post_destaque = max(com_inter, key=interacoes)["id"] if com_inter else None
+
     DATA_DIR.mkdir(exist_ok=True)
     validos = set()
 
@@ -207,6 +247,10 @@ def main():
             # Só a própria posição em cada ciclo — valores dos outros parceiros não são expostos
             "ranking_ciclos": {c: {"pos": lst.index(login) + 1, "total": len(lst)}
                                for c, lst in rank_ciclos.items() if login in lst},
+            "posts": [post_publico(x) for x in posts if x["login"] == login],
+            "organico_ciclos": {c: {"pos": lst.index(login) + 1, "total": len(lst)}
+                                for c, lst in rank_org.items() if login in lst},
+            "post_destaque": post_destaque if any(x["id"] == post_destaque and x["login"] == login for x in posts) else None,
         }
         validos.add(gravar(payload, login, senhas[login]))
         print(f"  ok {login}: {len(payload['reservas'])} reservas")
@@ -221,6 +265,9 @@ def main():
             "parceiros": [{"login": l, "nome": p["nome"], "tipo": p.get("tipo", "Parceiro"), "cupons": p["cupons"]} for l, p in parceiros.items()],
             "reservas": [dict(r, parceiro=nomes.get(dono(r), "Sem parceiro")) for r in reservas],
             "ranking_ciclos": {c: [nomes[l] for l in lst] for c, lst in rank_ciclos.items()},
+            "posts": [post_publico(x) | {"creator": nomes[x["login"]]} for x in posts],
+            "organico_ciclos": {c: [nomes[l] for l in lst] for c, lst in rank_org.items()},
+            "post_destaque": post_destaque,
         }
         validos.add(gravar(payload, admin, senhas[admin]))
         print(f"  ok {admin} (admin): {len(reservas)} reservas")

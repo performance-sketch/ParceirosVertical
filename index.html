@@ -31,7 +31,7 @@ button,input,select{font:inherit;color:inherit}
 .card-login h1{font:700 22px/1.2 "Inter Tight",Inter,sans-serif;margin:0 0 6px;letter-spacing:-.02em}
 .card-login p{color:var(--muted);margin:0 0 22px;font-size:14px}
 label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
-input[type=text],input[type=password],input[type=date],select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;outline:none}
+input[type=text],input[type=url],input[type=password],input[type=date],select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;outline:none}
 input:focus,select:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(10,10,10,.08)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;border-radius:999px;border:1px solid var(--line);background:#fff;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
 .btn:hover{background:var(--soft)}
@@ -161,6 +161,73 @@ td.r,th.r{text-align:right}
 .dst .nm{font-weight:600;font-size:15px}
 .dst .s{font-size:13px;color:var(--ink2)}
 
+/* ── Navegação Vendas / Conteúdos ────────────────────── */
+.views{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:12px}
+
+/* ── Conteúdos (Biblioteca de posts) ─────────────────── */
+.addbox{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px}
+.addbox .f,.ctool .f{display:flex;flex-direction:column;flex:1 1 170px;min-width:0}
+.addbox .f.grow{flex:3 1 320px}
+.addbox label{margin:0 0 6px}
+.ctool{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:16px}
+.ctool .f{max-width:240px}
+.ctool label{margin:0 0 4px;font-size:12px;color:var(--muted);font-weight:500}
+.addmsg{font-size:13px;margin-top:10px;min-height:20px;color:var(--ink2)}
+.addmsg.err{color:var(--red)} .addmsg.ok{color:var(--green)}
+.pend{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.pend div{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--ink2);flex-wrap:wrap}
+.pend a{color:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+@media (max-width:640px){.cards{grid-template-columns:repeat(2,1fr);gap:10px}}
+.pc{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:#fff;cursor:pointer;text-align:left;padding:0;display:flex;flex-direction:column;width:100%;min-width:0}
+.pc:hover{border-color:#c9c9cf}
+.th{aspect-ratio:4/5;background:var(--soft);position:relative;display:grid;place-items:center;color:var(--faint);overflow:hidden}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th svg{width:32px;height:32px}
+.chip{position:absolute;top:10px;left:10px;background:rgba(10,10,10,.82);color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px}
+.pc .bd{padding:14px 16px 16px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.pc .cr{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc .mt{font-size:12px;color:var(--muted)}
+.pc .lg{font-size:13px;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.9em;margin-top:2px}
+.pc .nums{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;margin-top:8px;color:var(--ink2)}
+.pc .nums b{font-weight:600;color:var(--ink)}
+.st{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);white-space:nowrap}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--faint);flex:none}
+.st.ok::before{background:var(--green)} .st.err::before{background:var(--red)} .st.warn::before{background:#b45309}
+.na{color:var(--faint)}
+.mini{width:36px;height:36px;border-radius:8px;object-fit:cover;background:var(--soft);flex:none}
+.ph{display:grid;place-items:center;color:var(--faint)} .ph svg{width:55%;height:55%}
+.pcell{display:flex;align-items:center;gap:10px;max-width:300px;cursor:pointer}
+.pcell span{overflow:hidden;text-overflow:ellipsis}
+.ins{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+@media (max-width:640px){.ins{grid-template-columns:1fr}}
+.insight{border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+.insight .k{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.insight p{margin:6px 0 0;font-size:15px;line-height:1.5}
+.nota{font-size:13px;color:var(--muted);margin:12px 0 0;line-height:1.5}
+.rk .th44{width:44px;height:44px;border-radius:10px;object-fit:cover;background:var(--soft);display:block}
+.rk .nm.lim{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:520px}
+#c-dlg{border:0;border-radius:20px;padding:0;width:min(780px,calc(100vw - 32px));max-height:calc(100vh - 48px);color:var(--ink);background:#fff}
+#c-dlg::backdrop{background:rgba(10,10,10,.45)}
+.dlg{padding:28px 28px 24px}
+.dlg-h{display:flex;gap:18px;align-items:flex-start}
+.dlg-h .th{width:96px;flex:none;border-radius:12px}
+.dlg-h h3{font:700 22px/1.2 "Inter Tight",Inter,sans-serif;margin:0 0 8px;letter-spacing:-.02em}
+.dlg-h .x{margin-left:auto;flex:none}
+.dl{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;font-size:13px;margin:0}
+.dl dt{color:var(--muted)} .dl dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0 8px}
+.kv>div{border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
+.kv .l{font-size:12px;color:var(--muted)}
+.kv .v{font:700 20px/1.2 "Inter Tight",Inter,sans-serif;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dlg h4{font:700 16px "Inter Tight",Inter,sans-serif;margin:22px 0 10px}
+.leg{font-size:14px;color:var(--ink2);white-space:pre-line;margin:16px 0 0;max-height:120px;overflow:auto}
+.hist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:14px}
+.hc{border:1px solid var(--line);border-radius:12px;padding:12px 14px 8px}
+.hc .l{font-size:12px;color:var(--muted);font-weight:500}
+.hc svg{display:block;width:100%;height:120px;overflow:visible;margin-top:4px}
+@media (max-width:640px){.kv{grid-template-columns:repeat(2,1fr)}.dlg{padding:20px 16px}.dlg-h .th{width:72px}}
+
 /* ── Footer ──────────────────────────────────────────── */
 footer{border-top:1px solid var(--line);margin-top:24px;padding:40px 0 48px;text-align:center}
 footer .logo{height:44px;margin:0 auto 14px;opacity:.45}
@@ -196,6 +263,10 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
         <div class="t1" id="h-titulo">Ranking Parceiros</div>
         <div class="t2"><b id="h-ciclo"></b><span id="h-atualizado"></span></div>
       </div>
+      <nav class="views" id="views" aria-label="Seções">
+        <button class="tab on" type="button" data-v="vendas">Vendas</button>
+        <button class="tab" type="button" data-v="conteudos">Conteúdos</button>
+      </nav>
       <div class="acoes">
         <button class="btn" id="btn-filtros" type="button">
           <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtros
@@ -214,7 +285,7 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
     </div>
   </div>
 
-  <main class="wrap">
+  <main class="wrap" id="v-vendas">
     <div class="hero">
       <div class="eyebrow" id="eyebrow"></div>
       <h1 id="headline"></h1>
@@ -258,6 +329,10 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
       <div class="tbl"><div class="tbl-scroll"><table id="tbl-res"></table></div></div>
     </section>
   </main>
+
+  <!-- Biblioteca de Posts dos Creators — Instagram (conteudos.js) -->
+  <main class="wrap hidden" id="v-conteudos"></main>
+  <dialog id="c-dlg"></dialog>
 
   <footer>
     <img class="logo" src="https://pub-64ddf6587a154706980200c5e647bba8.r2.dev/vertical-rio-logo-black.webp" alt="Vertical Rio">
@@ -367,6 +442,24 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
     try { D = await abrir(await baixar(loginAtual), chaveAtual); render(); } catch (_) {}
   }, 5 * 60 * 1000);
 
+  // ─── Abas Vendas / Conteúdos ─────────────────────────────────────────────
+  const VIEW_KEY = 'pv_view';
+  let VIEW = 'vendas';
+  try { VIEW = sessionStorage.getItem(VIEW_KEY) || 'vendas'; } catch (_) {}
+  function mostrarView(v) {
+    VIEW = v === 'conteudos' ? 'conteudos' : 'vendas';
+    try { sessionStorage.setItem(VIEW_KEY, VIEW); } catch (_) {}
+    document.querySelectorAll('#views .tab').forEach(t => t.classList.toggle('on', t.dataset.v === VIEW));
+    $('v-vendas').classList.toggle('hidden', VIEW !== 'vendas');
+    $('v-conteudos').classList.toggle('hidden', VIEW !== 'conteudos');
+    $('btn-filtros').classList.toggle('hidden', VIEW !== 'vendas');
+    if (VIEW !== 'vendas') $('painel-filtros').classList.add('hidden');
+  }
+  $('views').addEventListener('click', e => {
+    const v = e.target.dataset.v; if (!v) return;
+    mostrarView(v); render(); window.scrollTo(0, 0);
+  });
+
   // ─── Filtros ──────────────────────────────────────────────────────────────
   $('btn-filtros').addEventListener('click', () => $('painel-filtros').classList.toggle('hidden'));
   $('sel-ciclo').addEventListener('change', e => { if (e.target.value) { usarCiclo(e.target.value); render(); } });
@@ -432,6 +525,7 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
       $('sel-parceiro').innerHTML = '<option value="">Todos os parceiros</option>' + nomes.map(n => `<option>${esc(n)}</option>`).join('');
     }
     if (!F.ini) usarCiclo('');
+    mostrarView(VIEW);
     render();
   }
 
@@ -508,6 +602,7 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
       : '<tr><td class="vazio">Nenhuma reserva no período.</td></tr>';
 
     $('rodape').textContent = D.admin ? 'Uso interno · Ranking Parceiros' : 'Portal de Parceiros · Vertical Rio';
+    if (VIEW === 'conteudos' && window.PVC) window.PVC.render();
   }
 
   function ranking(rs, rsAnt) {
@@ -668,8 +763,19 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
       </div>`).join('')}</div>` : '<div class="vazio">Sem comissões nos últimos ciclos.</div>';
   }
 
+  // Ponte para conteudos.js (Biblioteca de posts)
+  window.PV = {
+    $, esc, nBR, int, pctTxt, dBR, ICO, iniciais, listaCiclos, cicloId, pad,
+    get D() { return D; },
+    get login() { return loginAtual; },
+    get chave() { return chaveAtual; },
+    get parceiro() { return F.parceiro; },
+    setParceiro(nome) { F.parceiro = nome; $('sel-parceiro').value = nome; render(); },
+  };
+
   restaurarSessao();
 })();
 </script>
+<script src="conteudos.js"></script>
 </body>
 </html>

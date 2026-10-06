@@ -11,6 +11,14 @@ Portal para parceiros da Vertical Rio acompanharem as reservas **confirmadas no 
 - O `index.html` (GitHub Pages) baixa o arquivo do login informado e o descriptografa no navegador. Senha errada = não abre.
 - O login `admin` vê todos os parceiros e cupons.
 
+## Biblioteca de Posts dos Creators — Instagram (aba Conteúdos)
+
+- O creator cola o link de um Reel/post/carrossel em **Adicionar publicação**. O envio é assinado no navegador com a chave do login dele.
+- Fluxo: portal → webhook do Make (cenário *Parceiros Vertical — Receber post*) → GitHub `repository_dispatch` → `receber-post.yml` grava em `instagram/inbox/` → `update.yml` roda `scripts/instagram_sync.py`, que confere a assinatura e coleta as métricas.
+- `scripts/instagram_post_provider.py` (instagramPostProvider) lê **somente a página pública** do post, sem login: @, data, legenda, capa, curtidas e comentários. Visualizações, compartilhamentos e reposts não são públicos e ficam como "—". Bloqueio do Instagram vira status "Erro de coleta" — sem contorno.
+- Coleta diária (semanal para posts com mais de 60 dias); cada coleta vira um ponto do histórico em `instagram/posts.json`. Capas ficam em `instagram/thumbs/`.
+- O cenário do Make guarda um token do GitHub (fine-grained, só este repositório, permissão *Contents: read and write*).
+
 ## Configuração
 
 `config.json`
