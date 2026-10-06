@@ -1,51 +1,16 @@
 name: Receber post de creator
 
 # Disparado pelo cenário do Make (repository_dispatch) quando um creator envia um link no portal.
-# 1) gravar:     guarda o envio em instagram/inbox/ (nunca é cancelado; o update.yml também processa a caixa de entrada)
-# 2) processar:  caminho rápido — coleta o post e atualiza só a biblioteca nos dados publicados, sem consultar o Rezdy
+# Caminho rápido num único job e num único commit (= uma única publicação do Pages):
+# grava o envio, coleta o post e atualiza só a biblioteca nos dados publicados, sem consultar o Rezdy.
+# Se outro job publicar antes (push recusado), refaz tudo sobre a versão mais nova do main.
 on:
   repository_dispatch:
     types: [novo-post]
 
 jobs:
-  gravar:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Gravar envio na caixa de entrada
-        env:
-          PAYLOAD: ${{ toJSON(github.event.client_payload) }}
-        run: |
-          python3 - <<'EOF'
-          import hashlib, json, os, pathlib
-          p = json.loads(os.environ["PAYLOAD"] or "{}")
-          campos = {k: str(p.get(k, ""))[:500] for k in ("signer", "login", "url", "tipo", "ts", "sig")}
-          nome = hashlib.sha256(json.dumps(campos, sort_keys=True).encode()).hexdigest()[:16]
-          d = pathlib.Path("instagram/inbox"); d.mkdir(parents=True, exist_ok=True)
-          (d / f"{nome}.json").write_text(json.dumps(campos))
-          print("envio de", campos["login"], campos["url"])
-          EOF
-
-      - name: Commit
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add instagram/inbox
-          git diff --cached --quiet && exit 0
-          git commit -m "chore: novo post na caixa de entrada [skip ci]"
-          for i in 1 2 3 4 5; do git pull --rebase -q && git push -q && exit 0; sleep $((i * 3)); done
-          exit 1
-
   processar:
-    needs: gravar
     runs-on: ubuntu-latest
-    # Mesma fila do update.yml: nunca dois jobs gravando data/ ao mesmo tempo
-    concurrency:
-      group: update-data
-      cancel-in-progress: false
     permissions:
       contents: write
     steps:
@@ -61,22 +26,38 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - name: Registrar envio e coletar métricas públicas do Instagram
+      - name: Registrar, coletar e publicar
         env:
+          PAYLOAD: ${{ toJSON(github.event.client_payload) }}
           PARCEIROS_SENHAS: ${{ secrets.PARCEIROS_SENHAS }}
-        run: python scripts/instagram_sync.py
-
-      - name: Atualizar a biblioteca nos dados publicados (sem Rezdy)
-        env:
-          PARCEIROS_SENHAS: ${{ secrets.PARCEIROS_SENHAS }}
-        run: python scripts/build_data.py --somente-posts
-
-      - name: Commit
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A data instagram
-          git diff --cached --quiet && exit 0
-          git commit -m "chore: novo post na biblioteca [skip ci]"
-          for i in 1 2 3 4 5; do git pull --rebase -q && git push -q && exit 0; sleep $((i * 3)); done
+          gravar_envio() {
+            python3 - <<'EOF'
+          import hashlib, json, os, pathlib
+          p = json.loads(os.environ["PAYLOAD"] or "{}")
+          campos = {k: str(p.get(k, ""))[:500] for k in ("signer", "login", "url", "tipo", "ts", "sig")}
+          nome = hashlib.sha256(json.dumps(campos, sort_keys=True).encode()).hexdigest()[:16]
+          d = pathlib.Path("instagram/inbox"); d.mkdir(parents=True, exist_ok=True)
+          (d / f"{nome}.json").write_text(json.dumps(campos))
+          print("envio de", campos["login"], campos["url"])
+          EOF
+          }
+          for tentativa in 1 2 3 4 5; do
+            gravar_envio
+            python scripts/instagram_sync.py
+            python scripts/build_data.py --somente-posts
+            git add -A data instagram
+            git diff --cached --quiet && exit 0
+            git commit -q -m "chore: novo post na biblioteca [skip ci]"
+            git push -q && exit 0
+            echo "main mudou durante o processamento — refazendo sobre a versão nova (tentativa $tentativa)"
+            git fetch -q origin main && git reset -q --hard origin/main
+            sleep $((tentativa * 2))
+          done
+          # Último recurso: guarda só o envio; a atualização automática (update.yml) processa em até 15 min
+          gravar_envio
+          git add instagram/inbox && git commit -q -m "chore: novo post na caixa de entrada [skip ci]"
+          for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 3; done
           exit 1

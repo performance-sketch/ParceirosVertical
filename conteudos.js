@@ -221,36 +221,22 @@
     } catch (_) { return null; }
   }
 
-  // Caminho rápido: receber-post.yml (gravar → processar). Reserva: update.yml, que também processa a caixa de entrada.
-  async function etapa(x, runs) {
+  // receber-post.yml faz tudo num job só; o progresso dentro dele é estimado pelo tempo decorrido
+  // (sem consultar os passos, para gastar menos da cota da API).
+  function etapa(x, runs) {
     const desde = ms(x.ts) - 15000;
     const rec = primeiro(runs, r => r.path.endsWith('receber-post.yml') && ms(r.created_at) >= desde);
     if (!rec) return Date.now() - ms(x.ts) > 90000
       ? {p: 12, txt: 'Na fila do Make · aguardando encaminhamento ao GitHub'}
       : {p: 12, txt: 'Enviado · aguardando o GitHub receber'};
-    if (rec.status === 'completed' && rec.conclusion === 'success') return {p: 94, txt: 'Concluindo · carregando no portal', reload: true};
-    const jobs = ((await gh(`${GH}/${rec.id}/jobs`)) || {}).jobs || [];
-    const gravar = jobs.find(j => j.name === 'gravar'), proc = jobs.find(j => j.name === 'processar');
-    if (!gravar || gravar.status !== 'completed') return {p: 25, txt: 'Recebido · registrando o link'};
-    if (gravar.conclusion !== 'success') return {p: 100, txt: 'Falha ao registrar o envio. Tente adicionar de novo.', cls: 'err'};
-    if (!proc || proc.status === 'queued' || proc.status === 'waiting' || proc.status === 'pending')
-      return {p: 40, txt: 'Link registrado · aguardando a vez na fila'};
-    if (proc.status === 'completed' && proc.conclusion === 'cancelled') {
-      // Foi para a atualização automática (update.yml), que processa a caixa de entrada
-      const upd = primeiro(runs, r => r.path.endsWith('update.yml') && ms(r.created_at) >= ms(rec.created_at));
-      if (upd && upd.status === 'completed') return upd.conclusion === 'success'
-        ? {p: 94, txt: 'Concluindo · carregando no portal', reload: true}
-        : {p: 100, txt: 'Falha na coleta. Nova tentativa automática em até 15 min.', cls: 'err'};
-      return {p: 55, txt: upd ? 'Coletando métricas na atualização automática' : 'Na fila da atualização automática (até 15 min)'};
-    }
-    if (proc.status === 'completed') return proc.conclusion === 'success'
-      ? {p: 94, txt: 'Concluindo · carregando no portal', reload: true}
-      : {p: 100, txt: 'Falha na coleta. Nova tentativa automática em até 15 min.', cls: 'err'};
-    const passo = (proc.steps || []).find(s => s.status === 'in_progress')?.name || '';
-    if (passo.startsWith('Atualizar')) return {p: 76, txt: 'Métricas coletadas · atualizando a biblioteca'};
-    if (passo === 'Commit') return {p: 86, txt: 'Salvando no repositório'};
-    if (passo.startsWith('Registrar')) return {p: 60, txt: 'Coletando métricas públicas no Instagram'};
-    return {p: 50, txt: 'Preparando a coleta'};
+    if (rec.status === 'completed') return rec.conclusion === 'success'
+      ? {p: 94, txt: 'Concluindo · carregando no portal', reload: true, rec: rec.id}
+      : {p: 100, txt: 'Falha no processamento. Tente adicionar de novo.', cls: 'err'};
+    if (rec.status !== 'in_progress') return {p: 25, txt: 'Recebido pelo GitHub · iniciando'};
+    const t = (Date.now() - ms(rec.run_started_at || rec.created_at)) / 1000;
+    if (t < 8) return {p: 35 + t * 2, txt: 'Preparando a coleta'};
+    if (t < 16) return {p: 52 + (t - 8) * 2.5, txt: 'Coletando métricas públicas no Instagram'};
+    return {p: Math.min(90, 72 + (t - 16) * 1.5), txt: 'Atualizando a biblioteca'};
   }
 
   async function acompanhar() {
@@ -262,24 +248,28 @@
   async function verificar() {
     const pend = lerPend();
     if (!pend.length) { clearInterval(timer); timer = null; return; }
-    // Ritmo: 3 s enquanto o GitHub trabalha; 15 s enquanto o envio ainda espera o Make
-    const ativo = pend.some(x => (PROG[x.id]?.p || 0) > 12 && !PROG[x.id]?.cls);
-    const agoraMs = Date.now();
-    if (agoraMs - ultimaConsulta < (ativo ? 3000 : 15000)) return;
-    ultimaConsulta = agoraMs;
-    const runs = ((await gh(GH + '?per_page=20')) || {}).workflow_runs;
-    let recarregar = false;
+    // Ritmo (cota de 60 consultas/h): 4 s com o GitHub trabalhando ou logo após o envio;
+    // 60 s se o envio está parado no Make; nenhuma consulta para itens que só aguardam o site.
+    const agoraMs = Date.now(), vivo = x => !PROG[x.id]?.cls && !PROG[x.id]?.aguarda && !PROG[x.id]?.fim;
+    const ativo = pend.some(x => vivo(x) && ((PROG[x.id]?.p || 0) > 12 || agoraMs - ms(x.ts) < 90000));
+    const consultar = pend.some(vivo) && agoraMs - ultimaConsulta >= (ativo ? 4000 : 60000);
+    if (consultar) ultimaConsulta = agoraMs;
+    const resp = consultar ? await gh(GH + '?per_page=20') : undefined;
+    const runs = resp ? resp.workflow_runs || [] : (consultar ? null : undefined);   // null = API indisponível
+    let recarregar = false, fresco = false;
     for (const x of pend) {
-      if (PROG[x.id]?.cls) continue;
-      PROG[x.id] = runs ? await etapa(x, runs) : {p: 50, txt: 'Processando… (conferindo a cada 30 s)', ind: true};
+      if (!consultar || !vivo(x)) continue;
+      PROG[x.id] = runs ? etapa(x, runs) : {p: 50, txt: 'Processando… (conferindo a cada 30 s)', ind: true};
       if (PROG[x.id].reload) recarregar = true;
     }
     // Ao concluir, lê direto do repositório (rápido); sem a API, confere o site a cada 30 s
-    if (recarregar && agoraMs - ultimoReload > 4000) { ultimoReload = agoraMs; await P.recarregar(apiDisponivel()); }
-    else if (!runs && agoraMs - ultimoReload > 30000) { ultimoReload = agoraMs; await P.recarregar(false); }
+    if (recarregar && agoraMs - ultimoReload > 3000) { ultimoReload = agoraMs; fresco = apiDisponivel(); await P.recarregar(fresco); }
+    else if ((runs === null || pend.some(x => PROG[x.id]?.aguarda || PROG[x.id]?.ind)) && agoraMs - ultimoReload > 30000) { ultimoReload = agoraMs; await P.recarregar(false); }
     const ids = new Set(posts().map(p => p.id));
     let mudou = false;
     pend.forEach(x => {
+      if (!ids.has(x.id) && PROG[x.id]?.reload && fresco)
+        PROG[x.id] = {p: 60, txt: 'Na fila da atualização automática (até 15 min)', ind: true, aguarda: true};
       if (!ids.has(x.id) || PROG[x.id]?.fim) return;
       const p = posts().find(y => y.id === x.id), [st] = STATUS[p.status] || ['Concluído'];
       PROG[x.id] = {p: 100, txt: p.status === 'atualizado' ? 'Concluído · publicação adicionada à biblioteca' : `Concluído · ${st}`, cls: ['atualizado', 'parcial'].includes(p.status) ? 'ok' : 'err', fim: Date.now()};
