@@ -159,7 +159,7 @@
     const a = analisar(v);
     if (!a) { msg.className = 'addmsg err'; msg.textContent = 'Link inválido. Use o link de um Reel, post ou carrossel (instagram.com/reel/… ou instagram.com/p/…).'; return; }
     if (posts().some(p => p.id === a.id)) { msg.className = 'addmsg err'; msg.textContent = 'Esta publicação já está na biblioteca.'; return; }
-    msg.textContent = a.reel ? 'Reel identificado.' : 'Post identificado. Se for carrossel, escolha "Carrossel" em Tipo de conteúdo — a página pública não diferencia post de carrossel.';
+    msg.textContent = a.reel ? 'Reel identificado.' : 'Publicação identificada. O formato (post, carrossel ou reel) é confirmado automaticamente na coleta.';
   }
   // Envios em andamento ficam guardados por login: quem divide o computador não vê os envios do outro
   const chavePend = () => `${PEND_KEY}:${P.login}`;

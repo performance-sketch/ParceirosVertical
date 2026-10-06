@@ -109,8 +109,14 @@ def coletar(url, sessao=None, timeout=20):
     nome = re.match(r"^(.*?) \(@[\w.]+\)", tt)
     base["nome"] = nome.group(1).strip() if nome else None
     if base["tipo"] is None:
-        # Links /p/ também podem ser reels: o twitter:title termina com "Instagram reel", "video" ou "photo"
-        base["tipo"] = "Reel" if tt.endswith(("Instagram reel", "Instagram video")) or meta.get("og:video") else ("Post" if tt.endswith("Instagram photo") else None)
+        # O twitter:title termina com o formato: "Instagram reel"/"video" (Reel, inclusive em links /p/),
+        # "Instagram photo" (Post) ou "Instagram photos and videos" (vários itens = Carrossel)
+        if tt.endswith(("Instagram reel", "Instagram video")) or meta.get("og:video"):
+            base["tipo"] = "Reel"
+        elif tt.endswith("Instagram photos and videos"):
+            base["tipo"] = "Carrossel"
+        elif tt.endswith("Instagram photo"):
+            base["tipo"] = "Post"
     base["thumb"] = meta.get("og:image") or meta.get("twitter:image")
 
     disponiveis = sum(v is not None for v in (curtidas, comentarios))
