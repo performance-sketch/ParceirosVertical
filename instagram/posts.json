@@ -71,6 +71,42 @@
    "ultima_coleta": "2026-10-06T18:50:40+00:00",
    "ultima_tentativa": "2026-10-06T18:50:40+00:00",
    "erro": null
+  },
+  {
+   "id": "DeAZoS-Pgcp",
+   "login": "amanda",
+   "url": "https://www.instagram.com/p/DeAZoS-Pgcp/",
+   "tipo_informado": null,
+   "tipo": "Reel",
+   "cadastrado_em": "2026-10-06T18:52:39+00:00",
+   "cadastrado_por": "amanda",
+   "status": "atualizado",
+   "perfil": "vertical.rio",
+   "nome": "Vertical Rio® Doors-off Helicopter Tours",
+   "publicado_em": "2026-10-01",
+   "legenda": "Rio therapy 🫶☀️🌊🇧🇷\n\n#riodejaneiro #helicopterride #verticalrio #helicoptertour #braziltravel",
+   "thumb": "instagram/thumbs/DeAZoS-Pgcp.jpg",
+   "metricas": {
+    "views": null,
+    "curtidas": 48,
+    "comentarios": 3,
+    "compartilhamentos": null,
+    "reposts": null
+   },
+   "aprox": [],
+   "historico": [
+    {
+     "views": null,
+     "curtidas": 48,
+     "comentarios": 3,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-06T18:52:52+00:00"
+    }
+   ],
+   "ultima_coleta": "2026-10-06T18:52:52+00:00",
+   "ultima_tentativa": "2026-10-06T18:52:52+00:00",
+   "erro": null
   }
  ]
 }
