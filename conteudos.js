@@ -179,9 +179,10 @@
       const r = await fetch(MAKE_WEBHOOK, {method: 'POST', body: new URLSearchParams(campos)});
       if (!r.ok) throw new Error('HTTP ' + r.status);
       gravarPend([...lerPend().filter(x => x.id !== a.id), {id: a.id, url: a.url, ts: campos.ts}]);
+      PROG[a.id] = {p: 12, txt: 'Enviado · aguardando o GitHub receber'};
       $('c-url').value = ''; $('c-tipo-in').value = '';
       msg.className = 'addmsg ok';
-      msg.textContent = 'Publicação recebida! Ela entra na biblioteca em alguns minutos, assim que as métricas públicas forem coletadas.';
+      msg.textContent = 'Publicação enviada! Acompanhe o progresso abaixo — a biblioteca atualiza sozinha ao final.';
       renderPend();
     } catch (_) {
       msg.className = 'addmsg err'; msg.textContent = 'Não foi possível enviar agora. Tente novamente em instantes.';
@@ -189,11 +190,79 @@
       $('c-add').disabled = false; $('c-add').textContent = 'Adicionar';
     }
   }
+  // ─── Progresso do envio ───────────────────────────────────────────────────
+  // Acompanha as automações pela API pública do GitHub (sem login): recebimento → coleta → publicação.
+  // Ao final recarrega os dados do portal. Se a API não responder, a barra fica indeterminada
+  // e o portal segue conferindo os dados publicados.
+  const RUNS_API = 'https://api.github.com/repos/performance-sketch/ParceirosVertical/actions/runs?per_page=20';
+  const PROG = {};          // id → {p, txt, cls, ind}
+  let etag = null, runs = [], timer = null, ultimoReload = 0;
+  const ms = s => new Date(s).getTime();
+  const primeiro = (lista, f) => lista.filter(f).sort((a, b) => ms(a.created_at) - ms(b.created_at))[0];
+
+  async function buscarRuns() {
+    try {
+      const r = await fetch(RUNS_API, {headers: etag ? {'If-None-Match': etag} : {}, cache: 'no-store'});
+      if (r.status === 304) return runs;
+      if (!r.ok) return null;
+      etag = r.headers.get('ETag'); runs = (await r.json()).workflow_runs || [];
+      return runs;
+    } catch (_) { return null; }
+  }
+
+  function etapa(x, rs) {
+    const desde = ms(x.ts) - 15000;
+    const rec = primeiro(rs, r => r.path.endsWith('receber-post.yml') && ms(r.created_at) >= desde);
+    if (!rec) return Date.now() - ms(x.ts) > 90000
+      ? {p: 12, txt: 'Na fila do Make · aguardando encaminhamento ao GitHub'}
+      : {p: 12, txt: 'Enviado · aguardando o GitHub receber'};
+    if (rec.status !== 'completed') return {p: 28, txt: 'Recebido · registrando o link'};
+    if (rec.conclusion !== 'success') return {p: 100, txt: 'Falha ao registrar o envio. Tente adicionar de novo.', cls: 'err'};
+    const upd = primeiro(rs, r => r.path.endsWith('update.yml') && ms(r.created_at) >= ms(rec.created_at));
+    if (!upd) return {p: 42, txt: 'Link registrado · aguardando a coleta'};
+    if (upd.status !== 'completed') return {p: 62, txt: 'Coletando métricas públicas no Instagram'};
+    if (upd.conclusion !== 'success') return {p: 100, txt: 'Falha na coleta. Nova tentativa automática em até 15 min.', cls: 'err'};
+    const pg = primeiro(rs, r => r.name === 'pages-build-deployment' && ms(r.created_at) >= ms(upd.created_at));
+    if (!pg || pg.status !== 'completed') return {p: 82, txt: 'Métricas coletadas · publicando no portal'};
+    return {p: 94, txt: 'Publicado · carregando no portal'};
+  }
+
+  async function acompanhar() {
+    const pend = lerPend();
+    if (!pend.length) { clearInterval(timer); timer = null; return; }
+    const rs = await buscarRuns();
+    let recarregar = false;
+    pend.forEach(x => {
+      if (PROG[x.id]?.cls) return;
+      PROG[x.id] = rs ? etapa(x, rs) : {p: 50, txt: 'Processando…', ind: true};
+      if (PROG[x.id].p >= 82 || !rs) recarregar = true;
+    });
+    // Confere os dados publicados (no máximo a cada 10 s) e conclui quando o post aparecer
+    if (recarregar && Date.now() - ultimoReload > 10000) { ultimoReload = Date.now(); await P.recarregar(); }
+    const ids = new Set(posts().map(p => p.id));
+    let mudou = false;
+    pend.forEach(x => {
+      if (!ids.has(x.id) || PROG[x.id]?.fim) return;
+      const p = posts().find(y => y.id === x.id), [st] = STATUS[p.status] || ['Concluído'];
+      PROG[x.id] = {p: 100, txt: p.status === 'atualizado' ? 'Concluído · publicação adicionada à biblioteca' : `Concluído · ${st}`, cls: ['atualizado', 'parcial'].includes(p.status) ? 'ok' : 'err', fim: Date.now()};
+      mudou = true;
+    });
+    // Itens concluídos saem da lista alguns segundos depois; envios com mais de 1 dia expiram
+    const agora = Date.now();
+    const resta = pend.filter(x => !(PROG[x.id]?.fim && agora - PROG[x.id].fim > 6000) && agora - ms(x.ts) < 864e5);
+    if (resta.length !== pend.length) { gravarPend(resta); mudou = true; }
+    if (mudou) render(); else renderPend();
+  }
+
   function renderPend() {
-    const ids = new Set(posts().map(p => p.id)), limite = Date.now() - 864e5;
-    const l = lerPend().filter(x => !ids.has(x.id) && new Date(x.ts) > limite);
-    gravarPend(l);
-    $('c-pend').innerHTML = l.map(x => `<div><span class="st">Atualização pendente</span><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url)}</a></div>`).join('');
+    const l = lerPend();
+    $('c-pend').innerHTML = l.map(x => {
+      const g = PROG[x.id] || {p: 8, txt: 'Enviando…'};
+      return `<div class="pg ${g.cls || ''}"><div class="pg-top"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url)}</a>
+        <span class="pg-t ${g.cls || ''}">${esc(g.txt)}</span></div>
+        <div class="pg-bar${g.ind ? ' ind' : ''}" role="progressbar" aria-label="${esc(g.txt)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${g.p}"><i style="width:${g.p}%"></i></div></div>`;
+    }).join('');
+    if (l.length && !timer) { timer = setInterval(acompanhar, 5000); acompanhar(); }
   }
 
   // ─── Render ───────────────────────────────────────────────────────────────

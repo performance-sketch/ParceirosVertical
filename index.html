@@ -174,9 +174,18 @@ td.r,th.r{text-align:right}
 .ctool label{margin:0 0 4px;font-size:12px;color:var(--muted);font-weight:500}
 .addmsg{font-size:13px;margin-top:10px;min-height:20px;color:var(--ink2)}
 .addmsg.err{color:var(--red)} .addmsg.ok{color:var(--green)}
-.pend{display:flex;flex-direction:column;gap:6px;margin-top:6px}
-.pend div{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--ink2);flex-wrap:wrap}
-.pend a{color:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.pend{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.pg{border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.pg-top{display:flex;gap:6px 16px;align-items:baseline;justify-content:space-between;flex-wrap:wrap;font-size:13px}
+.pg-top a{color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;min-width:0}
+.pg-t{font-weight:600;color:var(--ink)}
+.pg-t.err{color:var(--red)} .pg-t.ok{color:var(--green)}
+.pg-bar{height:6px;background:var(--soft);border-radius:999px;overflow:hidden;margin-top:10px;position:relative}
+.pg-bar i{display:block;height:100%;background:var(--ink);border-radius:999px;transition:width .8s ease}
+.pg.ok .pg-bar i{background:var(--green)} .pg.err .pg-bar i{background:var(--red)}
+.pg-bar.ind i{width:30%!important;position:absolute;animation:pg-ind 1.4s ease-in-out infinite}
+@keyframes pg-ind{0%{left:-30%}100%{left:100%}}
+@media (prefers-reduced-motion:reduce){.pg-bar i{transition:none}.pg-bar.ind i{animation:none;width:100%!important;opacity:.35}}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
 @media (max-width:640px){.cards{grid-template-columns:repeat(2,1fr);gap:10px}}
 .pc{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:#fff;cursor:pointer;text-align:left;padding:0;display:flex;flex-direction:column;width:100%;min-width:0}
@@ -437,10 +446,11 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
       iniciar();
     } catch (_) { try { sessionStorage.removeItem(SESS); } catch (__) {} }
   }
-  setInterval(async () => {
-    if (!chaveAtual) return;
-    try { D = await abrir(await baixar(loginAtual), chaveAtual); render(); } catch (_) {}
-  }, 5 * 60 * 1000);
+  async function recarregar() {
+    if (!chaveAtual) return false;
+    try { D = await abrir(await baixar(loginAtual), chaveAtual); render(); return true; } catch (_) { return false; }
+  }
+  setInterval(recarregar, 5 * 60 * 1000);
 
   // ─── Abas Vendas / Conteúdos ─────────────────────────────────────────────
   const VIEW_KEY = 'pv_view';
@@ -771,6 +781,7 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
     get chave() { return chaveAtual; },
     get parceiro() { return F.parceiro; },
     setParceiro(nome) { F.parceiro = nome; $('sel-parceiro').value = nome; render(); },
+    recarregar,
   };
 
   restaurarSessao();
