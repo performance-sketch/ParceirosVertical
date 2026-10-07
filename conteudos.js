@@ -336,17 +336,26 @@
     const agora = Date.now();
     const resta = pend.filter(x => !(PROG[x.id]?.fim && agora - PROG[x.id].fim > 6000) && agora - ms(x.ts) < 864e5);
     if (resta.length !== pend.length) { gravarPend(resta); mudou = true; }
-    if (mudou) { render(); destacarNovos(pend); } else renderPend();
+    // Concluído: mostra 100% por um instante e recarrega a página inteira (sem cache), destacando o post novo
+    const feitos = pend.filter(x => PROG[x.id]?.fim && PROG[x.id].cls === 'ok');
+    if (feitos.length) {
+      gravarPend(lerPend().filter(x => !feitos.some(f => f.id === x.id)));
+      renderPend();
+      const novo = feitos.find(x => x.acao !== 'excluir');
+      clearInterval(timer); timer = null;
+      setTimeout(() => P.recarregarPagina(novo && novo.id), 1200);
+      return;
+    }
+    if (mudou) render(); else renderPend();
   }
 
-  // Ao chegar a 100% a biblioteca já foi recarregada: leva a tela até o post novo e o destaca
-  const destacados = new Set();
-  function destacarNovos(pend) {
-    const novo = pend.find(x => x.acao !== 'excluir' && PROG[x.id]?.fim && PROG[x.id].cls === 'ok' && !destacados.has(x.id));
-    if (!novo) return;
-    destacados.add(novo.id);
-    const el = document.querySelector(`#c-lib .pc[data-post="${CSS.escape(novo.id)}"]`);
+  // Depois do recarregamento automático: leva a tela até o post novo e o destaca
+  function destacarSalvo() {
+    let id = null;
+    try { id = sessionStorage.getItem('pv_destaque'); } catch (_) {}
+    const el = id && document.querySelector(`#c-lib .pc[data-post="${CSS.escape(id)}"]`);
     if (!el) return;
+    try { sessionStorage.removeItem('pv_destaque'); } catch (_) {}
     el.scrollIntoView({behavior: 'smooth', block: 'center'});
     el.classList.add('novo');
   }
@@ -676,5 +685,5 @@
     $('c-dlg').showModal();
   }
 
-  window.PVC = {render, abrir: id => { if (!C.montado) montar(); abrir(id); }, enviarAssinado, thumbHTML, inter, tipoDe};
+  window.PVC = {render: () => { render(); destacarSalvo(); }, abrir: id => { if (!C.montado) montar(); abrir(id); }, enviarAssinado, thumbHTML, inter, tipoDe};
 })();

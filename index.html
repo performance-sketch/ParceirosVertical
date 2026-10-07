@@ -577,12 +577,27 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
     $('app').classList.add('hidden'); $('login').classList.remove('hidden');
     window.scrollTo(0, 0);
   });
+  // Depois de um envio, a página recarrega inteira (como Ctrl+Shift+R). O Pages ainda leva ~1 min para
+  // publicar os dados novos, então por 3 min o portal lê direto do repositório pela API do GitHub.
+  const FRESCO_KEY = 'pv_fresco_ate';
+  const frescoAtivo = () => { try { return +sessionStorage.getItem(FRESCO_KEY) > Date.now(); } catch (_) { return false; } };
+  function recarregarPagina(destaque) {
+    try {
+      sessionStorage.setItem(FRESCO_KEY, String(Date.now() + 180000));
+      if (destaque) sessionStorage.setItem('pv_destaque', destaque);
+    } catch (_) {}
+    const u = new URL(location.href);
+    u.searchParams.set('v', Date.now());   // URL nova: navegador busca página e scripts sem cache
+    location.replace(u);
+  }
   async function restaurarSessao() {
     try {
       const s = JSON.parse(sessionStorage.getItem(SESS) || 'null');
       if (!s) return;
       const chave = await crypto.subtle.importKey('raw', b64(s.k), 'AES-GCM', true, ['decrypt']);
-      D = await abrir(await baixar(s.login), chave);
+      let env = null;
+      if (frescoAtivo()) try { env = await baixarRepo(s.login); } catch (_) {}
+      D = await abrir(env || await baixar(s.login), chave);
       chaveAtual = chave; loginAtual = s.login;
       iniciar();
     } catch (_) { try { sessionStorage.removeItem(SESS); } catch (__) {} }
@@ -600,7 +615,7 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
   async function recarregar(fresco = false) {
     if (!chaveAtual) return false;
     let env = null;
-    if (fresco) try { env = await baixarRepo(loginAtual); } catch (_) {}
+    if (fresco || frescoAtivo()) try { env = await baixarRepo(loginAtual); } catch (_) {}
     try { D = await abrir(env || await baixar(loginAtual), chaveAtual); render(); return true; } catch (_) { return false; }
   }
   setInterval(() => recarregar(), 5 * 60 * 1000);
@@ -937,13 +952,16 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
     get chave() { return chaveAtual; },
     get parceiro() { return F.parceiro; },
     setParceiro(nome) { F.parceiro = nome; $('sel-parceiro').value = nome; render(); },
-    recarregar,
+    recarregar, recarregarPagina,
   };
 
   restaurarSessao();
 })();
 </script>
-<script src="conteudos.js"></script>
-<script src="painel.js"></script>
+<script>
+  // Scripts com a mesma versão da URL (?v=…): depois do recarregamento automático vêm sem cache
+  const V = new URLSearchParams(location.search).get('v') || '1';
+  for (const f of ['conteudos.js', 'painel.js']) document.write(`<script src="${f}?v=${encodeURIComponent(V)}"><\/script>`);
+</script>
 </body>
 </html>
