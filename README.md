@@ -32,6 +32,7 @@ Ciclo de análise: dia 26 do mês anterior ao dia 25 do mês (ex.: Setembro = 26
 Secrets do repositório (Settings → Secrets → Actions)
 - `REZDY_API_KEY`
 - `PARCEIROS_SENHAS` — JSON `{"admin": "...", "vazaonde": "...", ...}`
+- `META_IG_TOKEN` — token do usuário de sistema da Meta (mesmo `META_ACCESS_TOKEN` do MetaOrganico). Usado na biblioteca de posts para puxar, via API oficial (Business Discovery pela conta @vertical.rio), visualizações, curtidas/comentários exatos e seguidores. Sem ele, ou para perfis pessoais, valem os números da página pública do post.
 
 Parceiro sem senha em `PARCEIROS_SENHAS` não é publicado.
 
@@ -48,3 +49,9 @@ pip install requests cryptography
 python scripts/build_data.py
 python -m http.server 8000
 ```
+
+## Biblioteca de posts (Instagram)
+
+- O creator cola só o link do post. A coleta lê a página pública para descobrir o @ do dono e consulta a API da Meta (`scripts/instagram_post_provider.py`).
+- Envio pelo portal → Make → `receber-post.yml`, que coleta **só o post novo** (`instagram_sync.py --somente-novos`). Os demais posts são atualizados pelo `update.yml` (recentes 1×/dia, antigos 1×/semana).
+- Se o cenário do Make responder com o JSON da API da Meta, o portal mostra uma prévia das métricas na hora (`previaDe` em `conteudos.js`).
