@@ -55,3 +55,4 @@ python -m http.server 8000
 - O creator cola só o link do post. A coleta lê a página pública para descobrir o @ do dono e consulta a API da Meta (`scripts/instagram_post_provider.py`).
 - Envio pelo portal → Make → `receber-post.yml`, que coleta **só o post novo** (`instagram_sync.py --somente-novos`). Os demais posts são atualizados pelo `update.yml` (recentes 1×/dia, antigos 1×/semana).
 - Se o cenário do Make responder com o JSON da API da Meta, o portal mostra uma prévia das métricas na hora (`previaDe` em `conteudos.js`).
+- Tempo de um envio até o post aparecer: ~20–25 s. A Action usa um venv em cache (sem `setup-python` + `pip install`). O portal consulta a API do GitHub com `_=<timestamp>` para escapar do cache de 60 s, recarrega a biblioteca sozinho ao chegar a 100% e destaca o post novo.
