@@ -110,6 +110,43 @@
    "ultima_tentativa": "2026-10-07T16:30:42+00:00",
    "erro": null,
    "seguidores": 3583
+  },
+  {
+   "id": "DdM--DnRay1",
+   "login": "amanda",
+   "url": "https://www.instagram.com/p/DdM--DnRay1/",
+   "tipo_informado": null,
+   "tipo": "Reel",
+   "cadastrado_em": "2026-10-07T16:32:50+00:00",
+   "cadastrado_por": "amanda",
+   "status": "atualizado",
+   "perfil": "helinews",
+   "nome": "Helinews | Serviços Aéreos Especializados",
+   "publicado_em": "2026-09-12",
+   "legenda": "Rock in Rio em 4K pela Helinews, a bordo do Robinson R66. \n\nE esse zoom óptico? Outro nível.\nAlcance, estabilidade e definição nos mínimos detalhes.\n\n#RockInRio2026 #CidadeDoRock #helinews #aerialfilming #esquadrilhaceu",
+   "thumb": "instagram/thumbs/DdM--DnRay1.jpg",
+   "metricas": {
+    "views": 30417,
+    "curtidas": 1345,
+    "comentarios": 31,
+    "compartilhamentos": null,
+    "reposts": null
+   },
+   "aprox": [],
+   "historico": [
+    {
+     "views": 30417,
+     "curtidas": 1345,
+     "comentarios": 31,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-07T16:32:59+00:00"
+    }
+   ],
+   "ultima_coleta": "2026-10-07T16:32:59+00:00",
+   "ultima_tentativa": "2026-10-07T16:32:59+00:00",
+   "erro": null,
+   "seguidores": 4507
   }
  ]
 }
