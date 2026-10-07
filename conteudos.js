@@ -1,7 +1,7 @@
 /*
  * conteudos.js — Biblioteca de Posts dos Creators · Instagram (aba "Conteúdos")
  *
- * Só exibe o que scripts/instagram_sync.py coletou da página pública de cada post.
+ * Só exibe o que scripts/instagram_sync.py coletou (API oficial da Meta ou página pública de cada post).
  * Métrica ausente aparece como "—" / "Não disponível"; nada é estimado.
  * Envio de link: portal → webhook do Make → GitHub (repository_dispatch) → instagram_sync.py.
  */
@@ -272,7 +272,7 @@
     if (rec.status !== 'in_progress') return {p: 25, txt: 'Recebido pelo GitHub · iniciando'};
     const t = (Date.now() - ms(rec.run_started_at || rec.created_at)) / 1000;
     if (t < 8) return {p: 35 + t * 2, txt: exc ? 'Preparando a exclusão' : 'Preparando a coleta'};
-    if (t < 16) return {p: 52 + (t - 8) * 2.5, txt: exc ? 'Removendo da biblioteca' : 'Coletando métricas públicas no Instagram'};
+    if (t < 16) return {p: 52 + (t - 8) * 2.5, txt: exc ? 'Removendo da biblioteca' : 'Puxando views, curtidas e comentários'};
     return {p: Math.min(90, 72 + (t - 16) * 1.5), txt: 'Atualizando a biblioteca'};
   }
 
@@ -626,6 +626,7 @@
         <div style="min-width:0;flex:1"><h3>${esc(titulo(p))}</h3>
           <dl class="dl">
             <dt>Creator</dt><dd>${esc(creatorDe(p))}${p.perfil ? ` · <a href="https://www.instagram.com/${esc(p.perfil)}/" target="_blank" rel="noopener" style="color:inherit">@${esc(p.perfil)}</a>` : ''}</dd>
+            ${p.seguidores != null ? `<dt>Seguidores</dt><dd>${int(p.seguidores)}</dd>` : ''}
             <dt>Publicado em</dt><dd>${p.publicado_em ? dBR(p.publicado_em) : '—'}</dd>
             <dt>Tipo</dt><dd>${esc(tipoDe(p) || '—')}${origemTipo ? ` <span style="color:var(--muted)">(${origemTipo})</span>` : ''}</dd>
             <dt>ID</dt><dd>${esc(p.id)}</dd>

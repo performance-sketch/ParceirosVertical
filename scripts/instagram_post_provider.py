@@ -10,11 +10,18 @@ Regras:
   - Se o Instagram pedir login ou bloquear, o resultado é "erro_coleta" — não há tentativa de contorno.
 
 O que a página pública costuma entregar: @ do perfil, nome, data, legenda, capa, curtidas e comentários
-(valores grandes arredondados, ex.: "12K"). Visualizações, compartilhamentos e reposts não são públicos.
+(valores grandes arredondados, ex.: "12K").
+
+Com META_IG_TOKEN definido, o @ descoberto na página é consultado na API oficial da Meta (Business Discovery,
+pela conta @vertical.rio): visualizações, curtidas e comentários exatos e seguidores do perfil. Só funciona para
+contas profissionais (Business/Creator) e posts entre os 50 mais recentes do perfil; fora disso valem os
+números da página pública. Compartilhamentos e reposts não são públicos.
 """
 
 import html
+import os
 import re
+import time
 from datetime import datetime
 
 import requests
@@ -26,6 +33,11 @@ _META_RE = re.compile(r'<meta\s+(?:property|name)="([^"]+)"\s+content="([^"]*)"'
 _DESC_RE = re.compile(
     r"^(?:(?P<likes>[\d.,]+[KMB]?) likes?, )?(?:(?P<com>[\d.,]+[KMB]?) comments? )?- (?P<user>[\w.]+) on (?P<data>[A-Z][a-z]+ \d{1,2}, \d{4})"
 )
+
+GRAPH = "https://graph.facebook.com/v21.0/17841404363695690"   # conta @vertical.rio (consulta Business Discovery)
+CAMPOS_BD = ("business_discovery.username({u}){{username,followers_count,"
+             "media.limit(50){{permalink,media_product_type,like_count,comments_count,view_count,timestamp}}}}")
+_cache_bd = {}   # @ → (momento, resposta): uma consulta por perfil a cada 10 min atende vários posts dele
 
 STATUS = {
     "atualizado": "Atualizado",
@@ -59,6 +71,41 @@ def _numero(txt):
     return int(txt.replace(",", "")), False
 
 
+def perfil_api(usuario, sessao=None, timeout=15):
+    """Business Discovery do @ (com cache curto). None se não houver token, a conta não for profissional ou a API falhar."""
+    token = os.environ.get("META_IG_TOKEN")
+    if not token or not usuario:
+        return None
+    c = _cache_bd.get(usuario)
+    if c and time.time() - c[0] < 600:
+        return c[1]
+    try:
+        r = (sessao or requests).get(GRAPH, params={"fields": CAMPOS_BD.format(u=usuario)},
+                                     headers={"Authorization": f"Bearer {token}"}, timeout=timeout)
+        bd = r.json().get("business_discovery")
+    except (requests.RequestException, ValueError):
+        bd = None
+    _cache_bd[usuario] = (time.time(), bd)
+    return bd
+
+
+def _enriquecer(base, sessao):
+    """Troca curtidas/comentários arredondados pelos exatos da API e acrescenta views e seguidores."""
+    bd = perfil_api(base["perfil"], sessao)
+    if not bd:
+        return
+    base["seguidores"] = bd.get("followers_count")
+    m = next((x for x in (bd.get("media") or {}).get("data", []) if f"/{base['shortcode']}/" in x.get("permalink", "")), None)
+    if not m:
+        return
+    base["metricas"].update(views=m.get("view_count"), curtidas=m.get("like_count", base["metricas"]["curtidas"]),
+                            comentarios=m.get("comments_count", base["metricas"]["comentarios"]))
+    base["aprox"] = []
+    base["fonte"] = "api"
+    if m.get("media_product_type") == "REELS":
+        base["tipo"] = "Reel"
+
+
 def coletar(url, sessao=None, timeout=20):
     """
     Retorna um dict com:
@@ -71,7 +118,7 @@ def coletar(url, sessao=None, timeout=20):
         return {"status": "link_invalido", "url": url}
     base = dict(info, perfil=None, nome=None, tipo=info["tipo_url"], publicado_em=None, legenda=None, thumb=None,
                 metricas={"views": None, "curtidas": None, "comentarios": None, "compartilhamentos": None, "reposts": None},
-                aprox=[])
+                aprox=[], seguidores=None, fonte="pagina")
     del base["tipo_url"]
     s = sessao or requests
     try:
@@ -119,7 +166,8 @@ def coletar(url, sessao=None, timeout=20):
             base["tipo"] = "Post"
     base["thumb"] = meta.get("og:image") or meta.get("twitter:image")
 
-    disponiveis = sum(v is not None for v in (curtidas, comentarios))
+    _enriquecer(base, sessao)
+    disponiveis = sum(base["metricas"][k] is not None for k in ("curtidas", "comentarios"))
     return dict(base, status="atualizado" if disponiveis == 2 else "parcial")
 
 

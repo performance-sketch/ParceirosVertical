@@ -31,6 +31,7 @@ jobs:
           PAYLOAD: ${{ toJSON(github.event.client_payload) }}
           PARCEIROS_SENHAS: ${{ secrets.PARCEIROS_SENHAS }}
           PAGAMENTOS_CHAVE: ${{ secrets.PAGAMENTOS_CHAVE }}
+          META_IG_TOKEN: ${{ secrets.META_IG_TOKEN }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -47,7 +48,7 @@ jobs:
           }
           for tentativa in 1 2 3 4 5; do
             gravar_envio
-            python scripts/instagram_sync.py
+            python scripts/instagram_sync.py --somente-novos
             python scripts/build_data.py --somente-posts
             git add -A data instagram financeiro
             git diff --cached --quiet && exit 0

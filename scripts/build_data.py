@@ -149,7 +149,7 @@ def carregar_posts():
 def post_publico(p):
     """Campos que o portal exibe (legenda encurtada para o arquivo não crescer demais)."""
     leg = p.get("legenda")
-    return {k: p.get(k) for k in ("id", "url", "tipo", "tipo_informado", "perfil", "nome", "publicado_em", "thumb",
+    return {k: p.get(k) for k in ("id", "url", "tipo", "tipo_informado", "perfil", "nome", "seguidores", "publicado_em", "thumb",
                                   "status", "erro", "ultima_coleta", "ultima_tentativa", "cadastrado_em",
                                   "metricas", "aprox", "historico")} | {"legenda": leg[:700] + "…" if leg and len(leg) > 700 else leg}
 

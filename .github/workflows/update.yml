@@ -35,6 +35,7 @@ jobs:
           REZDY_API_KEY: ${{ secrets.REZDY_API_KEY }}
           PARCEIROS_SENHAS: ${{ secrets.PARCEIROS_SENHAS }}
           PAGAMENTOS_CHAVE: ${{ secrets.PAGAMENTOS_CHAVE }}
+          META_IG_TOKEN: ${{ secrets.META_IG_TOKEN }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

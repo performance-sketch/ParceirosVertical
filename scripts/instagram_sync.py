@@ -9,7 +9,7 @@ instagram_sync.py — Parceiros Vertical · Biblioteca de Posts dos Creators
 
 A interface (index.html) só lê o que build_data.py publica — coleta e exibição ficam separadas.
 
-Variáveis de ambiente: PARCEIROS_SENHAS (mesma do build_data.py)
+Variáveis de ambiente: PARCEIROS_SENHAS (mesma do build_data.py); META_IG_TOKEN (opcional, API da Meta)
 """
 
 import hashlib
@@ -178,9 +178,9 @@ def salvar_thumb(post_id, url, sessao):
         return None
 
 
-def coletar(db):
+def coletar(db, somente_novos=False):
     t = agora()
-    fila = [p for p in db["posts"] if coleta_vencida(p, t)]
+    fila = [p for p in db["posts"] if coleta_vencida(p, t) and (not somente_novos or p["status"] == "pendente")]
     fila.sort(key=lambda p: (p["status"] != "pendente", p.get("ultima_tentativa") or ""))
     sessao = requests.Session()
     for i, p in enumerate(fila[:MAX_COLETAS]):
@@ -193,7 +193,7 @@ def coletar(db):
         if r["status"] not in ("atualizado", "parcial"):
             print(f"  {p['id']}: {provider.STATUS[r['status']]}{' — ' + r['erro'] if r.get('erro') else ''}")
             continue
-        for k in ("perfil", "nome", "publicado_em", "legenda"):
+        for k in ("perfil", "nome", "publicado_em", "legenda", "seguidores"):
             if r.get(k) is not None:
                 p[k] = r[k]
         p["tipo"] = r.get("tipo") or p.get("tipo")
@@ -208,7 +208,8 @@ def coletar(db):
             p["historico"].append(ponto)
         if r.get("thumb") and not p.get("thumb"):
             p["thumb"] = salvar_thumb(p["id"], r["thumb"], sessao)
-        print(f"  {p['id']}: {provider.STATUS[r['status']]} · {r['metricas']['curtidas']} curtidas · {r['metricas']['comentarios']} comentários")
+        print(f"  {p['id']}: {provider.STATUS[r['status']]} ({r.get('fonte')}) · {r['metricas']['views']} views · "
+              f"{r['metricas']['curtidas']} curtidas · {r['metricas']['comentarios']} comentários")
     if len(fila) > MAX_COLETAS:
         print(f"  {len(fila) - MAX_COLETAS} coletas ficam para a próxima execução")
 
@@ -224,7 +225,8 @@ def main():
     db = json.loads(DB.read_text(encoding="utf-8")) if DB.exists() else {"posts": []}
     antes = json.dumps(db, sort_keys=True)
     processar_inbox(db, config, senhas)
-    coletar(db)
+    # --somente-novos (envio pelo portal): coleta só o que acabou de chegar; as demais ficam para o update.yml
+    coletar(db, somente_novos="--somente-novos" in sys.argv)
     if json.dumps(db, sort_keys=True) != antes:
         IG_DIR.mkdir(exist_ok=True)
         DB.write_text(json.dumps(db, ensure_ascii=False, indent=1), encoding="utf-8")
