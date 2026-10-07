@@ -73,6 +73,44 @@
    "ultima_coleta": "2026-10-07T15:46:29+00:00",
    "ultima_tentativa": "2026-10-07T15:46:29+00:00",
    "erro": null
+  },
+  {
+   "id": "DeFZB49kW8l",
+   "login": "amanda",
+   "url": "https://www.instagram.com/p/DeFZB49kW8l/",
+   "tipo_informado": null,
+   "tipo": "Reel",
+   "cadastrado_em": "2026-10-07T15:46:23+00:00",
+   "cadastrado_por": "amanda",
+   "status": "atualizado",
+   "perfil": "renato_cariani",
+   "nome": "Renato Cariani",
+   "publicado_em": "2026-10-04",
+   "legenda": "🚨 Abra os olhos e encare a vida, meu amigo. Busque desenvolver a sua mente para aprender a interpretar cada situação que aparece no seu caminho. Faça mais, trabalhe mais, queira mais, reclame menos, dê menos desculpas e procure mais soluções.\n\nIndependentemente de onde você nasceu ou de onde mora hoje, é possível mudar o seu jogo. Faça acontecer, trabalhe todos os dias, mantenha a vontade de vencer e vá para cima!\n\n-\n\n➡️ Cupom CARIANI na @growthsupplements",
+   "thumb": "instagram/thumbs/DeFZB49kW8l.jpg",
+   "metricas": {
+    "views": null,
+    "curtidas": 11000,
+    "comentarios": 69,
+    "compartilhamentos": null,
+    "reposts": null
+   },
+   "aprox": [
+    "curtidas"
+   ],
+   "historico": [
+    {
+     "views": null,
+     "curtidas": 11000,
+     "comentarios": 69,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-07T15:46:41+00:00"
+    }
+   ],
+   "ultima_coleta": "2026-10-07T15:46:41+00:00",
+   "ultima_tentativa": "2026-10-07T15:46:41+00:00",
+   "erro": null
   }
  ]
 }
