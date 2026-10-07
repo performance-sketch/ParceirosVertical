@@ -1,3 +1,41 @@
 {
- "posts": []
+ "posts": [
+  {
+   "id": "Db3dYwcCMQb",
+   "login": "amanda",
+   "url": "https://www.instagram.com/p/Db3dYwcCMQb/",
+   "tipo_informado": null,
+   "tipo": "Carrossel",
+   "cadastrado_em": "2026-10-07T18:08:10+00:00",
+   "cadastrado_por": "verticalrio",
+   "status": "atualizado",
+   "perfil": "amandaastor_",
+   "nome": "Amanda Astor | Life in Brasil 🇧🇷",
+   "publicado_em": "2026-08-10",
+   "legenda": "Ad | 5% off with code AMANDA at @vertical.rio 🚁\nStill not over these views. Definitely one for the bucket list 🇧🇷\n.\n.\n.\n.\n.\n#brasil #rio #helicopterrio #helicoptero #activityrio",
+   "thumb": "instagram/thumbs/Db3dYwcCMQb.jpg",
+   "metricas": {
+    "views": null,
+    "curtidas": 1577,
+    "comentarios": 65,
+    "compartilhamentos": null,
+    "reposts": null
+   },
+   "aprox": [],
+   "historico": [
+    {
+     "views": null,
+     "curtidas": 1577,
+     "comentarios": 65,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-07T18:08:31+00:00"
+    }
+   ],
+   "ultima_coleta": "2026-10-07T18:08:31+00:00",
+   "ultima_tentativa": "2026-10-07T18:08:31+00:00",
+   "erro": null,
+   "seguidores": 54279
+  }
+ ]
 }
