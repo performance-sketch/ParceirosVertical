@@ -385,6 +385,8 @@
       com: soma(l.A, comissao), recB: soma(l.B, r => r.valor)}))
       .sort((a, b) => b.rec - a.rec || b.res - a.res || a.cupom.localeCompare(b.cupom));
     const ativos = rows.filter(r => r.res).length;
+    // Usos de cupom = reservas feitas com cupom (as atribuídas só por número de pedido não contam)
+    const usos = rs => rs.filter(r => r.cupom !== 'PEDIDO').length;
     const cupom = c => c === 'PEDIDO' ? '<span style="color:var(--muted)">pedidos</span>' : `<span class="code">${esc(c)}</span>`;
     const cr = (d.parceiros || []).map(p => {
       const ps = A.ps.filter(x => x.creator === p.nome);
@@ -398,11 +400,11 @@
         ['Comissão', moeda(A.com), delta(A.com, B.com)],
         ['Reservas', int(A.res), delta(A.res, B.res, {abs: true})],
         ['Passageiros', int(A.pax), delta(A.pax, B.pax, {abs: true})],
-        ['Cupons com venda', `${int(ativos)} <small>de ${int(rows.length)}</small>`, ''],
+        ['Número de cupons utilizados', int(usos(A.rs)), delta(usos(A.rs), usos(B.rs), {abs: true}), `em ${int(ativos)} de ${int(rows.length)} cupons`],
         ['Ticket médio', A.res ? moeda(A.receita / A.res) : NA, A.res && B.res ? delta(A.receita / A.res, B.receita / B.res) : ''],
         ['Posts publicados', int(A.posts), delta(A.posts, B.posts, {abs: true})],
         ['Visualizações', num(A.views), delta(A.views, B.views)],
-      ].map(([l, val, dl]) => `<div class="mc"><div class="l">${l}</div><div class="v num">${val}</div>${dl}</div>`).join('')}</div>
+      ].map(([l, val, dl, sub]) => `<div class="mc"><div class="l">${l}</div><div class="v num">${val}</div>${dl}${sub ? `<div class="s">${sub}</div>` : ''}</div>`).join('')}</div>
       <div class="tbl" style="margin-top:18px"><div class="tbl-scroll"><table>
         <tr><th>Cupom</th><th>Parceiro</th><th>Tipo</th><th class="r">Reservas</th><th class="r">Passageiros</th><th class="r">Receita</th><th class="r">Comissão</th><th class="r">vs anterior</th><th class="r">Participação</th></tr>
         ${rows.map(r => `<tr data-creator="${esc(r.parc)}" style="cursor:pointer" title="Abrir o painel de ${esc(r.parc)}"><td>${cupom(r.cupom)}</td><td>${esc(r.parc)}</td><td>${esc(r.tipo)}</td>
