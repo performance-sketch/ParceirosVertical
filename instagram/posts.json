@@ -109,6 +109,44 @@
    "ultima_coleta": "2026-10-07T15:56:28+00:00",
    "ultima_tentativa": "2026-10-07T15:56:28+00:00",
    "erro": null
+  },
+  {
+   "id": "DeMTLjEOlrn",
+   "login": "amanda",
+   "url": "https://www.instagram.com/p/DeMTLjEOlrn/",
+   "tipo_informado": null,
+   "tipo": "Reel",
+   "cadastrado_em": "2026-10-07T15:58:26+00:00",
+   "cadastrado_por": "amanda",
+   "status": "atualizado",
+   "perfil": "jones.manoel",
+   "nome": "Jones Manoel",
+   "publicado_em": "2026-10-07",
+   "legenda": "Flávio Bolsonaro precisa explicar sua relação com Daniel Vorcaro e o Banco Master!\n\nEnquanto o caso Master segue cercado de investigações e suspeitas, não dá para tratar essas relações como detalhe. Áudios e documentos revelados este ano mostraram que ele negociou diretamente com Vorcaro um repasse milionário para financiar um filme sobre Jair Bolsonaro.\n\nO caso precisa ser apurado até o fim, com transparência! Precisamos enterrar de vez a candidatura de Flávio Bolsonaro! O Brasil não vai aceitar aliado de banqueiro, de quem explora e esfola os trabalhadores e trabalhadoras, os pequenos e médios negócios!",
+   "thumb": "instagram/thumbs/DeMTLjEOlrn.jpg",
+   "metricas": {
+    "views": null,
+    "curtidas": 55000,
+    "comentarios": 3454,
+    "compartilhamentos": null,
+    "reposts": null
+   },
+   "aprox": [
+    "curtidas"
+   ],
+   "historico": [
+    {
+     "views": null,
+     "curtidas": 55000,
+     "comentarios": 3454,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-07T15:58:39+00:00"
+    }
+   ],
+   "ultima_coleta": "2026-10-07T15:58:39+00:00",
+   "ultima_tentativa": "2026-10-07T15:58:39+00:00",
+   "erro": null
   }
  ]
 }
