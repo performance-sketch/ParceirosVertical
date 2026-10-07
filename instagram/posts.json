@@ -35,6 +35,44 @@
    "ultima_coleta": "2026-10-07T15:43:33+00:00",
    "ultima_tentativa": "2026-10-07T15:43:33+00:00",
    "erro": null
+  },
+  {
+   "id": "DeDOmshESMC",
+   "login": "amanda",
+   "url": "https://www.instagram.com/p/DeDOmshESMC/",
+   "tipo_informado": null,
+   "tipo": "Reel",
+   "cadastrado_em": "2026-10-07T15:46:09+00:00",
+   "cadastrado_por": "amanda",
+   "status": "atualizado",
+   "perfil": "renato_cariani",
+   "nome": "Renato Cariani",
+   "publicado_em": "2026-10-03",
+   "legenda": "🚨 Calma, irmão @bistecone_ Você vai superar isso… amigo é pra essas coisas 👊🏻\n\n-\n\n➡️ Cupom CARIANI na @growthsupplements",
+   "thumb": "instagram/thumbs/DeDOmshESMC.jpg",
+   "metricas": {
+    "views": null,
+    "curtidas": 20000,
+    "comentarios": 550,
+    "compartilhamentos": null,
+    "reposts": null
+   },
+   "aprox": [
+    "curtidas"
+   ],
+   "historico": [
+    {
+     "views": null,
+     "curtidas": 20000,
+     "comentarios": 550,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-07T15:46:29+00:00"
+    }
+   ],
+   "ultima_coleta": "2026-10-07T15:46:29+00:00",
+   "ultima_tentativa": "2026-10-07T15:46:29+00:00",
+   "erro": null
   }
  ]
 }
