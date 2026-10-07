@@ -73,6 +73,43 @@
    "ultima_tentativa": "2026-10-07T16:23:13+00:00",
    "erro": null,
    "seguidores": 144626
+  },
+  {
+   "id": "Dd54WqDohbk",
+   "login": "amanda",
+   "url": "https://www.instagram.com/p/Dd54WqDohbk/",
+   "tipo_informado": null,
+   "tipo": "Reel",
+   "cadastrado_em": "2026-10-07T16:30:30+00:00",
+   "cadastrado_por": "amanda",
+   "status": "atualizado",
+   "perfil": "yulia_bandrivska",
+   "nome": "Yulia Bandrivska",
+   "publicado_em": "2026-09-30",
+   "legenda": "Cause it’s a bittersweet symphony, this life🎼",
+   "thumb": "instagram/thumbs/Dd54WqDohbk.jpg",
+   "metricas": {
+    "views": 6113,
+    "curtidas": 319,
+    "comentarios": 93,
+    "compartilhamentos": null,
+    "reposts": null
+   },
+   "aprox": [],
+   "historico": [
+    {
+     "views": 6113,
+     "curtidas": 319,
+     "comentarios": 93,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-07T16:30:42+00:00"
+    }
+   ],
+   "ultima_coleta": "2026-10-07T16:30:42+00:00",
+   "ultima_tentativa": "2026-10-07T16:30:42+00:00",
+   "erro": null,
+   "seguidores": 3583
   }
  ]
 }
