@@ -221,6 +221,33 @@
    "ultima_tentativa": "2026-10-07T16:34:37+00:00",
    "erro": null,
    "seguidores": 144625
+  },
+  {
+   "id": "DeK6j6nMSTe",
+   "login": "amanda",
+   "url": "https://www.instagram.com/p/DeK6j6nMSTe/",
+   "tipo_informado": null,
+   "tipo": null,
+   "cadastrado_em": "2026-10-07T17:24:14+00:00",
+   "cadastrado_por": "amanda",
+   "status": "indisponivel",
+   "perfil": null,
+   "nome": null,
+   "publicado_em": null,
+   "legenda": null,
+   "thumb": null,
+   "metricas": {
+    "views": null,
+    "curtidas": null,
+    "comentarios": null,
+    "compartilhamentos": null,
+    "reposts": null
+   },
+   "aprox": [],
+   "historico": [],
+   "ultima_coleta": null,
+   "ultima_tentativa": "2026-10-07T17:24:25+00:00",
+   "erro": null
   }
  ]
 }
