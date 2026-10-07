@@ -702,7 +702,7 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
     $('f-parceiro').classList.toggle('hidden', !D.admin);
     $('bloco-ranking').classList.toggle('hidden', !D.admin);
     if (D.admin) {
-      const nomes = [...new Set(D.reservas.map(r => r.parceiro))].filter(n => n !== SEM).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+      const nomes = [...new Set([...(D.parceiros || []).map(p => p.nome), ...D.reservas.map(r => r.parceiro)])].filter(n => n !== SEM).sort((a, b) => a.localeCompare(b, 'pt-BR'));
       $('sel-parceiro').innerHTML = '<option value="">Todos os parceiros</option>' + nomes.map(n => `<option>${esc(n)}</option>`).join('');
     }
     if (!F.ini) usarCiclo('');

@@ -429,11 +429,8 @@
   }
 
   function cabecalhoAdmin(d, v) {
-    const ps = [...(d.parceiros || [])].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
     return `<div class="pn-adm"><span class="modo">Visão do administrador</span>
-      <select id="pn-creator" aria-label="Creator">${ps.map(p => `<option${p.nome === v.nome ? ' selected' : ''}>${esc(p.nome)}</option>`).join('')}</select>
-      <button class="btn" type="button" data-creator="">Ver todos</button>
-      <span class="sub" style="font-size:13px;color:var(--muted)">Você está vendo o painel de ${esc(v.nome)} como ele(a) vê.</span></div>`;
+      <span class="sub" style="font-size:13px;color:var(--muted)">Você está vendo o painel de ${esc(v.nome)} como ele(a) vê. Para ver todos os cupons, escolha "Todos os parceiros" em Filtros.</span></div>`;
   }
 
   // 1. Visão geral
@@ -738,8 +735,6 @@
     });
     raiz.addEventListener('change', e => {
       if (e.target.id === 'pn-ordem') { S.ordem = e.target.value; guardar(); render(); }
-      else if (e.target.id === 'pn-creator') P.setParceiro(e.target.value);
-      else if (e.target.id === 'pn-ini' || e.target.id === 'pn-fim') { S.ini = $('pn-ini').value; S.fim = $('pn-fim').value; guardar(); render(); }
     });
     S.montado = true;
   }
