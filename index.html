@@ -186,6 +186,8 @@ td.r,th.r{text-align:right}
 .pg.ok .pg-bar i{background:var(--green)} .pg.err .pg-bar i{background:var(--red)}
 .pg-bar.ind i{width:30%!important;position:absolute;animation:pg-ind 1.4s ease-in-out infinite}
 @keyframes pg-ind{0%{left:-30%}100%{left:100%}}
+@keyframes novo-post{0%,60%{box-shadow:0 0 0 3px var(--green)}100%{box-shadow:0 0 0 3px transparent}}
+.pc.novo{animation:novo-post 3s ease-out}
 @media (prefers-reduced-motion:reduce){.pg-bar i{transition:none}.pg-bar.ind i{animation:none;width:100%!important;opacity:.35}}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
 @media (max-width:640px){.cards{grid-template-columns:repeat(2,1fr);gap:10px}}
@@ -589,7 +591,8 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
   // sem esperar a publicação do Pages); se a API não responder, usa o Pages.
   async function baixarRepo(login) {
     const arq = (await sha256hex('pv-file:' + login)).slice(0, 24) + '.json';
-    const r = await fetch(`https://api.github.com/repos/performance-sketch/ParceirosVertical/contents/data/${arq}?ref=main`,
+    // _= fura o cache de 60 s da API do GitHub (sem ele, o arquivo recém-publicado demora até 1 min para aparecer)
+    const r = await fetch(`https://api.github.com/repos/performance-sketch/ParceirosVertical/contents/data/${arq}?ref=main&_=${Date.now()}`,
       {headers: {Accept: 'application/vnd.github.raw+json'}, cache: 'no-store'});
     if (!r.ok) throw new Error('api');
     return r.json();

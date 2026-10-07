@@ -245,6 +245,7 @@
   // indeterminada e o portal segue conferindo os dados publicados.
   const GH = 'https://api.github.com/repos/performance-sketch/ParceirosVertical/actions/runs';
   const PROG = {};          // id → {p, txt, cls, ind, fim}
+  const RUN_OK = {};        // id → quando o GitHub concluiu (dá alguns segundos para o arquivo novo aparecer)
   const cacheGH = {};       // url → {etag, json}
   // A API pública do GitHub permite 60 consultas/hora por IP. O portal guarda uma reserva e,
   // abaixo dela (ou se a API recusar), passa a conferir só os dados publicados no site.
@@ -258,7 +259,8 @@
     if (!apiDisponivel()) return null;
     const c = cacheGH[url];
     try {
-      const r = await fetch(url, {headers: c ? {'If-None-Match': c.etag} : {}, cache: 'no-store'});
+      // _= fura o cache de 60 s da API do GitHub; o ETag continua valendo (304 não gasta a cota)
+      const r = await fetch(url + (url.includes('?') ? '&' : '?') + '_=' + Date.now(), {headers: c ? {'If-None-Match': c.etag} : {}, cache: 'no-store'});
       const resta = +r.headers.get('X-RateLimit-Remaining'), volta = +r.headers.get('X-RateLimit-Reset');
       if (r.headers.has('X-RateLimit-Remaining')) apiLivre = resta;
       if (volta && (r.status === 403 || r.status === 429 || resta <= RESERVA_API)) apiVoltaEm = volta * 1000;
@@ -319,7 +321,8 @@
     pend.forEach(x => {
       // Adicionar conclui quando o post aparece nos dados; excluir, quando ele some
       const exc = x.acao === 'excluir', pronto = exc ? !ids.has(x.id) : ids.has(x.id);
-      if (!pronto && PROG[x.id]?.reload && fresco)
+      if (PROG[x.id]?.reload && !RUN_OK[x.id]) RUN_OK[x.id] = Date.now();
+      if (!pronto && PROG[x.id]?.reload && fresco && Date.now() - RUN_OK[x.id] > 20000)
         PROG[x.id] = {p: 60, txt: 'Na fila da atualização automática (até 15 min)', ind: true, aguarda: true};
       if (!pronto || PROG[x.id]?.fim) return;
       if (exc) PROG[x.id] = {p: 100, txt: 'Concluído · publicação excluída da biblioteca', cls: 'ok', fim: Date.now()};
@@ -333,7 +336,19 @@
     const agora = Date.now();
     const resta = pend.filter(x => !(PROG[x.id]?.fim && agora - PROG[x.id].fim > 6000) && agora - ms(x.ts) < 864e5);
     if (resta.length !== pend.length) { gravarPend(resta); mudou = true; }
-    if (mudou) render(); else renderPend();
+    if (mudou) { render(); destacarNovos(pend); } else renderPend();
+  }
+
+  // Ao chegar a 100% a biblioteca já foi recarregada: leva a tela até o post novo e o destaca
+  const destacados = new Set();
+  function destacarNovos(pend) {
+    const novo = pend.find(x => x.acao !== 'excluir' && PROG[x.id]?.fim && PROG[x.id].cls === 'ok' && !destacados.has(x.id));
+    if (!novo) return;
+    destacados.add(novo.id);
+    const el = document.querySelector(`#c-lib .pc[data-post="${CSS.escape(novo.id)}"]`);
+    if (!el) return;
+    el.scrollIntoView({behavior: 'smooth', block: 'center'});
+    el.classList.add('novo');
   }
 
   function renderPend() {

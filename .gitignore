@@ -2,3 +2,4 @@
 senhas*.json
 __pycache__/
 *.xlsx
+.venv
