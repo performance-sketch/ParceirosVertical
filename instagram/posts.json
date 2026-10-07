@@ -73,6 +73,45 @@
    "ultima_tentativa": "2026-10-07T18:13:16+00:00",
    "erro": null,
    "seguidores": 54279
+  },
+  {
+   "id": "CwX3sCyvMNW",
+   "login": "vazaonde",
+   "url": "https://www.instagram.com/p/CwX3sCyvMNW/",
+   "tipo_informado": null,
+   "tipo": "Reel",
+   "cadastrado_em": "2026-10-07T18:16:05+00:00",
+   "cadastrado_por": "verticalrio",
+   "status": "atualizado",
+   "perfil": "vazaonde",
+   "nome": "Marcos Vaz • VazAonde • Viagem e Família",
+   "publicado_em": "2023-08-25",
+   "legenda": "🚁 Como é e quanto custa o voar de helicóptero sem portas no Rio de Janeiro 👇🏼\n\nO voo da @vertical.rio tem duração de 30 min com 2 paradas para colocar os pés pra fora, Arpoador e Cristo Redentor.\n\n👉🏼 O voo tem preço dinâmico, mas ainda temos o cupom de desconto “Vazaonde” \n\n+ info + \nMinimo 1 pax para reserva\nCapacidade 6 pax\nAluguel de GoPro\nCarbono neutro\n\n* cupom de desconto na Vertical Rio *",
+   "thumb": "instagram/thumbs/CwX3sCyvMNW.jpg",
+   "metricas": {
+    "views": null,
+    "curtidas": 78000,
+    "comentarios": 709,
+    "compartilhamentos": null,
+    "reposts": null
+   },
+   "aprox": [
+    "curtidas"
+   ],
+   "historico": [
+    {
+     "views": null,
+     "curtidas": 78000,
+     "comentarios": 709,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-07T18:16:16+00:00"
+    }
+   ],
+   "ultima_coleta": "2026-10-07T18:16:16+00:00",
+   "ultima_tentativa": "2026-10-07T18:16:16+00:00",
+   "erro": null,
+   "seguidores": 635019
   }
  ]
 }
