@@ -143,6 +143,42 @@
    "ultima_coleta": "2026-10-06T18:52:58+00:00",
    "ultima_tentativa": "2026-10-06T18:52:58+00:00",
    "erro": null
+  },
+  {
+   "id": "DPR7x1vDlNs",
+   "login": "amanda",
+   "url": "https://www.instagram.com/p/DPR7x1vDlNs/",
+   "tipo_informado": null,
+   "tipo": "Carrossel",
+   "cadastrado_em": "2026-10-07T15:21:34+00:00",
+   "cadastrado_por": "amanda",
+   "status": "atualizado",
+   "perfil": "vertical.rio",
+   "nome": "Vertical Rio® Doors-off Helicopter Tours",
+   "publicado_em": "2025-10-01",
+   "legenda": "This is just a little taste of the most unforgettable route of your life. Seeing Rio de Janeiro from above is simply… breathtaking. 😮‍💨✨\n\n👇🏻 Below, you’ll find our full route. Come check it out:\n\nChrist the Redeemer\nArpoador Rock\nBarra da Tijuca Beach\nBarra da Tijuca Lagoons\nBotanical Garden\nBrazilian Jockey Club\nCopacabana Beach\nCopacabana Fort\nGávea Rock\nIpanema Beach\nJoatinga Beach\nLage Park\nLeblon Beach\nReserva Beach\nVidigal Favela\nTwo Brothers Hill\nTijuca Forest\nSão Conrado Beach\nRodrigo de Freitas Lagoon\nRocinha Favela\n\n📸 @fabiocoxta",
+   "thumb": "instagram/thumbs/DPR7x1vDlNs.jpg",
+   "metricas": {
+    "views": null,
+    "curtidas": 708,
+    "comentarios": 18,
+    "compartilhamentos": null,
+    "reposts": null
+   },
+   "aprox": [],
+   "historico": [
+    {
+     "views": null,
+     "curtidas": 708,
+     "comentarios": 18,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-07T15:21:48+00:00"
+    }
+   ],
+   "ultima_coleta": "2026-10-07T15:21:48+00:00",
+   "ultima_tentativa": "2026-10-07T15:21:48+00:00",
+   "erro": null
   }
  ]
 }
