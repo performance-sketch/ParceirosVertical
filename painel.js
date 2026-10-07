@@ -140,7 +140,7 @@
     const cm = ps.filter(p => inter(p) != null);
     return {
       rs, ps, res: rs.length, pax: soma(rs, r => r.pax), receita: soma(rs, r => r.valor), com: soma(rs, comissao),
-      posts: ps.length, curt: somaN(ps, p => m(p, 'curtidas')), coment: somaN(ps, p => m(p, 'comentarios')),
+      posts: ps.length, curt: somaN(ps, p => m(p, 'curtidas')), coment: somaN(ps, p => m(p, 'comentarios')), views: somaN(ps, p => m(p, 'views')),
       inter: somaN(cm, inter), ipp: cm.length ? soma(cm, inter) / cm.length : null,
     };
   }
@@ -347,7 +347,7 @@
     const raiz = $('v-painel');
     $('h-ciclo').textContent = 'Painel do creator';
     const v = vm();
-    if (!v) { raiz.innerHTML = escolherCreator(d); observar(); return; }
+    if (!v) { raiz.innerHTML = visaoGeral(d) + escolherCreator(d); observar(); return; }
     const per = periodo(), A = resumo(v, per.ini, per.fim), B = resumo(v, per.ant.ini, per.ant.fim);
     const serie = porCiclo(v), cms = comissoes(v), conq = conquistas(v, serie), an = analisar(v, serie);
     raiz.innerHTML = [
@@ -364,6 +364,58 @@
     ].join('');
     observar();
     contar();
+  }
+
+  // "Ver todos" (admin): overview de todos os cupons no período dos filtros do topo
+  function visaoGeral(d) {
+    const per = periodo();
+    const todos = {reservas: d.reservas.filter(r => r.parceiro !== 'Sem parceiro'), posts: d.posts || []};
+    const A = resumo(todos, per.ini, per.fim), B = resumo(todos, per.ant.ini, per.ant.fim);
+    const tipo = nome => (d.parceiros || []).find(p => p.nome === nome)?.tipo || 'Parceiro';
+    // Uma linha por cupom, inclusive os cadastrados sem venda; reservas atribuídas por número de pedido viram "pedidos"
+    const L = {};
+    const linha = (cupom, parc) => L[cupom + '|' + parc] ||= {cupom, parc, tipo: tipo(parc), A: [], B: []};
+    (d.parceiros || []).forEach(p => (p.cupons || []).forEach(c => linha(c, p.nome)));
+    const em = (r, x) => r.criado >= x.ini && r.criado <= x.fim;
+    todos.reservas.forEach(r => {
+      const l = linha(r.cupom, r.parceiro);
+      if (em(r, per)) l.A.push(r); else if (em(r, per.ant)) l.B.push(r);
+    });
+    const rows = Object.values(L).map(l => ({...l, res: l.A.length, pax: soma(l.A, r => r.pax), rec: soma(l.A, r => r.valor),
+      com: soma(l.A, comissao), recB: soma(l.B, r => r.valor)}))
+      .sort((a, b) => b.rec - a.rec || b.res - a.res || a.cupom.localeCompare(b.cupom));
+    const ativos = rows.filter(r => r.res).length;
+    const cupom = c => c === 'PEDIDO' ? '<span style="color:var(--muted)">pedidos</span>' : `<span class="code">${esc(c)}</span>`;
+    const cr = (d.parceiros || []).map(p => {
+      const ps = A.ps.filter(x => x.creator === p.nome);
+      return {nome: p.nome, n: ps.length, v: somaN(ps, x => m(x, 'views')), c: somaN(ps, x => m(x, 'curtidas')), co: somaN(ps, x => m(x, 'comentarios'))};
+    }).filter(x => x.n).sort((a, b) => (b.v || 0) - (a.v || 0) || b.n - a.n);
+    const num = x => x == null ? NA : int(x);
+    return `<section class="pn-sec on" id="pn-geral">
+      <div class="pn-h"><h2>Todos os cupons</h2><span class="sub">${esc(per.nome)}${per.andamento ? ' · em andamento' : ''} · comparado com ${esc(per.ant.nome)}</span></div>
+      <div class="pn-grid">${[
+        ['Receita bruta', moeda(A.receita), delta(A.receita, B.receita)],
+        ['Comissão', moeda(A.com), delta(A.com, B.com)],
+        ['Reservas', int(A.res), delta(A.res, B.res, {abs: true})],
+        ['Passageiros', int(A.pax), delta(A.pax, B.pax, {abs: true})],
+        ['Cupons com venda', `${int(ativos)} <small>de ${int(rows.length)}</small>`, ''],
+        ['Ticket médio', A.res ? moeda(A.receita / A.res) : NA, A.res && B.res ? delta(A.receita / A.res, B.receita / B.res) : ''],
+        ['Posts publicados', int(A.posts), delta(A.posts, B.posts, {abs: true})],
+        ['Visualizações', num(A.views), delta(A.views, B.views)],
+      ].map(([l, val, dl]) => `<div class="mc"><div class="l">${l}</div><div class="v num">${val}</div>${dl}</div>`).join('')}</div>
+      <div class="tbl" style="margin-top:18px"><div class="tbl-scroll"><table>
+        <tr><th>Cupom</th><th>Parceiro</th><th>Tipo</th><th class="r">Reservas</th><th class="r">Passageiros</th><th class="r">Receita</th><th class="r">Comissão</th><th class="r">vs anterior</th><th class="r">Participação</th></tr>
+        ${rows.map(r => `<tr data-creator="${esc(r.parc)}" style="cursor:pointer" title="Abrir o painel de ${esc(r.parc)}"><td>${cupom(r.cupom)}</td><td>${esc(r.parc)}</td><td>${esc(r.tipo)}</td>
+          <td class="r num">${int(r.res)}</td><td class="r num">${int(r.pax)}</td><td class="r num">${brl(r.rec)}</td><td class="r num">${brl(r.com)}</td>
+          <td class="r">${delta(r.rec, r.recB)}</td><td class="r num">${A.receita ? nBR(r.rec / A.receita * 100, 1) + '%' : '—'}</td></tr>`).join('')}
+        <tr style="font-weight:700"><td colspan="3">Total</td><td class="r num">${int(A.res)}</td><td class="r num">${int(A.pax)}</td><td class="r num">${brl(A.receita)}</td><td class="r num">${brl(A.com)}</td><td class="r">${delta(A.receita, B.receita)}</td><td class="r num">${A.receita ? '100%' : '—'}</td></tr>
+      </table></div></div>
+      ${cr.length ? `<div class="pn-h" style="margin-top:26px"><h2 style="font-size:17px">Conteúdo publicado no período</h2><span class="sub">posts cadastrados na biblioteca</span></div>
+      <div class="tbl"><div class="tbl-scroll"><table>
+        <tr><th>Creator</th><th class="r">Posts</th><th class="r">Visualizações</th><th class="r">Curtidas</th><th class="r">Comentários</th></tr>
+        ${cr.map(x => `<tr data-creator="${esc(x.nome)}" style="cursor:pointer"><td>${esc(x.nome)}</td><td class="r num">${int(x.n)}</td><td class="r num">${num(x.v)}</td><td class="r num">${num(x.c)}</td><td class="r num">${num(x.co)}</td></tr>`).join('')}
+      </table></div></div>` : ''}
+    </section>`;
   }
 
   function escolherCreator(d) {
@@ -409,10 +461,10 @@
           ['Posts publicados', int(A.posts), delta(A.posts, B.posts, {abs: true})],
           ['Curtidas', A.curt == null ? NA : int(A.curt), delta(A.curt, B.curt)],
           ['Comentários', A.coment == null ? NA : int(A.coment), delta(A.coment, B.coment)],
-          ['Interações por post', A.ipp == null ? NA : int(Math.round(A.ipp)), delta(A.ipp, B.ipp)],
+          ['Visualizações', A.views == null ? NA : int(A.views), delta(A.views, B.views)],
         ].map(([l, val, dl]) => `<div class="mc"><div class="l">${l}</div><div class="v num">${val}</div>${dl}</div>`).join('')}
       </div>
-      <div class="indisp" title="O Instagram não exibe esses números sem login do creator">Não disponíveis publicamente no Instagram: <span>Visualizações</span><span>Compartilhamentos</span><span>Reposts</span><span>Taxa de engajamento</span></div>
+      <div class="indisp" title="O Instagram não exibe esses números sem login do creator">Não disponíveis publicamente no Instagram: <span>Compartilhamentos</span><span>Reposts</span><span>Taxa de engajamento</span></div>
       <div class="pn-grid" style="margin-top:14px">
         ${prox ? `<a class="mc" href="#pn-conq" data-ir="pn-conq" style="color:inherit;text-decoration:none"><div class="l">Próxima conquista</div><div class="v" style="font-size:17px;white-space:normal">${esc(prox.nome)}</div><div class="s">${esc(prox.falta || '')}</div></a>` : ''}
         ${destaque ? `<a class="mc" href="#pn-conteudo" data-ir="pn-conteudo" style="color:inherit;text-decoration:none"><div class="l">Conteúdo que mais engajou</div><div class="v" style="font-size:15px;white-space:normal">${esc(leg(destaque, 50))}</div><div class="s">${int(inter(destaque))} interações</div></a>` : ''}
