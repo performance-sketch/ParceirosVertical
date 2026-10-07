@@ -632,8 +632,9 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
     $('v-vendas').classList.toggle('hidden', VIEW !== 'vendas');
     $('v-conteudos').classList.toggle('hidden', VIEW !== 'conteudos');
     $('v-painel').classList.toggle('hidden', VIEW !== 'painel');
-    $('btn-filtros').classList.toggle('hidden', VIEW !== 'vendas');
-    if (VIEW !== 'vendas') $('painel-filtros').classList.add('hidden');
+    // Vendas e Painel compartilham os mesmos filtros (ciclo, De/Até e parceiro)
+    $('btn-filtros').classList.toggle('hidden', VIEW === 'conteudos');
+    if (VIEW === 'conteudos') $('painel-filtros').classList.add('hidden');
   }
   $('views').addEventListener('click', e => {
     const v = e.target.dataset.v; if (!v) return;
@@ -951,6 +952,7 @@ footer p{margin:0;font-size:13px;color:var(--muted)}
     get login() { return loginAtual; },
     get chave() { return chaveAtual; },
     get parceiro() { return F.parceiro; },
+    get filtro() { return {ciclo: F.ciclo, ini: F.ini, fim: F.fim}; },
     setParceiro(nome) { F.parceiro = nome; $('sel-parceiro').value = nome; render(); },
     recarregar, recarregarPagina,
   };

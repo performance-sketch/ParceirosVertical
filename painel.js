@@ -85,12 +85,14 @@
   const faixa = (ini, fim, nome) => { const n = nDias(ini, fim); return {ini, fim, nome, ant: {ini: mais(ini, -n), fim: mais(ini, -1), nome: 'período anterior'}}; };
 
   function periodo() {
-    const h = hoje(), c = cicloAtual();
-    if (S.per === '7d') return faixa(mais(h, -6), h, 'Últimos 7 dias');
-    if (S.per === '30d') return faixa(mais(h, -29), h, 'Últimos 30 dias');
-    if (S.per === 'ciclo-ant') { const a = ciclo(cicloAnt(c)), b = ciclo(cicloAnt(c, 2)); return {ini: a.ini, fim: a.fim, nome: `Ciclo ${a.nome}`, ant: {ini: b.ini, fim: b.fim, nome: b.nome}}; }
-    if (S.per === '3c') { const a = ciclo(cicloAnt(c, 2)), z = ciclo(c), b = ciclo(cicloAnt(c, 5)), y = ciclo(cicloAnt(c, 3)); return {ini: a.ini, fim: z.fim, nome: 'Últimos 3 ciclos', ant: {ini: b.ini, fim: y.fim, nome: '3 ciclos anteriores'}}; }
-    if (S.per === 'custom' && S.ini && S.fim && S.ini <= S.fim) return faixa(S.ini, S.fim, `${dBR(S.ini)} – ${dBR(S.fim)}`);
+    const h = hoje(), c = cicloAtual(), f = P.filtro;
+    // Filtros do topo (os mesmos da aba Vendas): ciclo fechado → compara com o ciclo anterior;
+    // De/Até personalizado → compara com o mesmo número de dias imediatamente antes
+    if (f && f.ini && f.fim && f.ciclo !== c) {
+      if (!f.ciclo) return faixa(f.ini, f.fim, `${dBR(f.ini)} – ${dBR(f.fim)}`);
+      const a = ciclo(f.ciclo), b = ciclo(cicloAnt(f.ciclo));
+      return {ini: a.ini, fim: a.fim, nome: `Ciclo ${a.nome}`, ant: {ini: b.ini, fim: b.fim, nome: b.nome}};
+    }
     // Ciclo atual, comparado com o mesmo ponto do ciclo anterior (comparação justa com o ciclo em andamento)
     const z = ciclo(c), a = ciclo(cicloAnt(c)), corrido = nDias(z.ini, h);
     const fimAnt = mais(a.ini, corrido - 1);
@@ -384,7 +386,6 @@
 
   // 1. Visão geral
   function secVisao(v, per, A, B, conq, an) {
-    const chips = [['7d', '7 dias'], ['30d', '30 dias'], ['ciclo', 'Ciclo atual'], ['ciclo-ant', 'Ciclo anterior'], ['3c', '3 ciclos'], ['custom', 'Personalizado']];
     const prox = conq.filter(c => !c.ok && c.prog > 0).sort((a, b) => b.prog - a.prog)[0];
     const rk = v.rk?.atual || {};
     const posicoes = [['receita', 'faturamento'], ['reservas', 'reservas'], ['engajamento', 'engajamento'], ['crescimento', 'crescimento']]
@@ -392,8 +393,6 @@
     const destaque = [...v.posts].filter(p => inter(p) != null).sort((a, b) => inter(b) - inter(a))[0];
     const acao = proximaAcao(v, an);
     return `<section class="pn-sec" id="pn-visao">
-      <div class="pn-chips" role="tablist" aria-label="Período">${chips.map(([k, l]) => `<button type="button" class="chip-p${S.per === k ? ' on' : ''}" data-per="${k}">${l}</button>`).join('')}</div>
-      ${S.per === 'custom' ? `<div class="pn-datas"><input type="date" id="pn-ini" value="${S.ini}" aria-label="De"><input type="date" id="pn-fim" value="${S.fim}" aria-label="Até"></div>` : ''}
       <div class="hero-pn">
         <div class="eb">${esc(per.nome)}${per.andamento ? ' · em andamento' : ''}</div>
         <div class="big num" data-contar="${A.receita}" data-fmt="moeda0">${`<small>R$</small>${nBR(A.receita, 0)}`}</div>
