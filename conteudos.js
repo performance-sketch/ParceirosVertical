@@ -176,7 +176,17 @@
     campos.sig = hex(await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(texto)));
     const r = await fetch(MAKE_WEBHOOK, {method: 'POST', body: new URLSearchParams(campos)});
     if (!r.ok) throw new Error('HTTP ' + r.status);
+    try { return await r.json(); } catch (_) { return null; }
   }
+
+  // Prévia instantânea: o Make responde com a consulta Business Discovery da API da Meta (perfil + 50 posts recentes)
+  function previaDe(j, id) {
+    const b = j && j.business_discovery; if (!b) return null;
+    const m = ((b.media || {}).data || []).find(x => (x.permalink || '').includes(`/${id}/`)) || {};
+    return {perfil: b.username, seguidores: b.followers_count, views: m.view_count, curtidas: m.like_count, comentarios: m.comments_count};
+  }
+  const previaTxt = v => ['@' + v.perfil, v.views != null && int(v.views) + ' views', v.curtidas != null && int(v.curtidas) + ' curtidas',
+    v.comentarios != null && int(v.comentarios) + ' comentários', v.seguidores != null && int(v.seguidores) + ' seguidores'].filter(Boolean).join(' · ');
 
   async function enviar(e) {
     e.preventDefault();
@@ -190,13 +200,15 @@
     const campos = {signer: P.login, login, url: a.url, tipo: $('c-tipo-in').value, ts: new Date().toISOString()};
     $('c-add').disabled = true; $('c-add').textContent = 'Enviando…';
     try {
-      await enviarAssinado(campos);
+      const previa = previaDe(await enviarAssinado(campos), a.id);
       const creator = D().admin ? (D().parceiros || []).find(p => p.login === login)?.nome : null;
-      gravarPend([...lerPend().filter(x => x.id !== a.id), {id: a.id, url: a.url, ts: campos.ts, creator}]);
+      gravarPend([...lerPend().filter(x => x.id !== a.id), {id: a.id, url: a.url, ts: campos.ts, creator, previa}]);
       PROG[a.id] = {p: 12, txt: 'Enviado · aguardando o GitHub receber'};
       $('c-url').value = ''; $('c-tipo-in').value = '';
       msg.className = 'addmsg ok';
-      msg.textContent = 'Publicação enviada! Acompanhe o progresso abaixo — a biblioteca atualiza sozinha ao final.';
+      msg.textContent = previa && previa.views != null
+        ? `Dados puxados: ${previaTxt(previa)}. A publicação entra na biblioteca em instantes.`
+        : 'Publicação enviada! Acompanhe o progresso abaixo — a biblioteca atualiza sozinha ao final.';
       renderPend();
     } catch (_) {
       msg.className = 'addmsg err'; msg.textContent = 'Não foi possível enviar agora. Tente novamente em instantes.';
@@ -330,7 +342,7 @@
       const g = PROG[x.id] || {p: 8, txt: 'Enviando…'};
       return `<div class="pg ${g.cls || ''}"><div class="pg-top"><a href="${esc(x.url)}" target="_blank" rel="noopener">${x.acao === 'excluir' ? 'Excluir · ' : ''}${x.creator ? esc(x.creator) + ' · ' : ''}${esc(x.url)}</a>
         <span class="pg-t ${g.cls || ''}">${esc(g.txt)}</span></div>
-        <div class="pg-bar${g.ind ? ' ind' : ''}" role="progressbar" aria-label="${esc(g.txt)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${g.p}"><i style="width:${g.p}%"></i></div></div>`;
+        <div class="pg-bar${g.ind ? ' ind' : ''}" role="progressbar" aria-label="${esc(g.txt)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${g.p}"><i style="width:${g.p}%"></i></div>${x.previa ? `<div style="font-size:13px;margin-top:6px;color:var(--ink2)">${esc(previaTxt(x.previa))}</div>` : ''}</div>`;
     }).join('');
     if (l.length && !timer) { timer = setInterval(acompanhar, 3000); acompanhar(); }
   }
