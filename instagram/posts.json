@@ -147,6 +147,43 @@
    "ultima_tentativa": "2026-10-07T16:32:59+00:00",
    "erro": null,
    "seguidores": 4507
+  },
+  {
+   "id": "Dc3gqb-RjTf",
+   "login": "amanda",
+   "url": "https://www.instagram.com/p/Dc3gqb-RjTf/",
+   "tipo_informado": null,
+   "tipo": "Reel",
+   "cadastrado_em": "2026-10-07T16:33:47+00:00",
+   "cadastrado_por": "amanda",
+   "status": "atualizado",
+   "perfil": "ramonarauj",
+   "nome": "Ramon Araujo",
+   "publicado_em": "2026-09-04",
+   "legenda": "Hoje foi dia de realizar sonhos: ver a cidade do rock @rockinrio nas alturas 🥹🤘🏻\n\nObrigado @vertical.rio e @visitrio por me proporcionar essa experiência. E se vcs, assim como eu quer viver uma experiência como essa usem o cupom: ROCKINRIO26 e garanta 10% de desconto. \n\n#RockinRio #RockinRio2026 #riodejaneiro",
+   "thumb": "instagram/thumbs/Dc3gqb-RjTf.jpg",
+   "metricas": {
+    "views": 12543,
+    "curtidas": 401,
+    "comentarios": 73,
+    "compartilhamentos": null,
+    "reposts": null
+   },
+   "aprox": [],
+   "historico": [
+    {
+     "views": 12543,
+     "curtidas": 401,
+     "comentarios": 73,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-07T16:34:03+00:00"
+    }
+   ],
+   "ultima_coleta": "2026-10-07T16:34:03+00:00",
+   "ultima_tentativa": "2026-10-07T16:34:03+00:00",
+   "erro": null,
+   "seguidores": 24573
   }
  ]
 }
