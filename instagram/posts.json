@@ -17,7 +17,7 @@
    "metricas": {
     "views": null,
     "curtidas": 1577,
-    "comentarios": 65,
+    "comentarios": 66,
     "compartilhamentos": null,
     "reposts": null
    },
@@ -30,12 +30,20 @@
      "compartilhamentos": null,
      "reposts": null,
      "em": "2026-10-07T18:08:31+00:00"
+    },
+    {
+     "views": null,
+     "curtidas": 1577,
+     "comentarios": 66,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-08T17:32:16+00:00"
     }
    ],
-   "ultima_coleta": "2026-10-07T18:08:31+00:00",
-   "ultima_tentativa": "2026-10-07T18:08:31+00:00",
+   "ultima_coleta": "2026-10-08T17:32:16+00:00",
+   "ultima_tentativa": "2026-10-08T17:32:16+00:00",
    "erro": null,
-   "seguidores": 54279
+   "seguidores": 54364
   },
   {
    "id": "DblvCJ8hW6k",
