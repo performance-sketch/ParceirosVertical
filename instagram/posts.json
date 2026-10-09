@@ -16,7 +16,7 @@
    "thumb": "instagram/thumbs/Db3dYwcCMQb.jpg",
    "metricas": {
     "views": null,
-    "curtidas": 1577,
+    "curtidas": 1576,
     "comentarios": 66,
     "compartilhamentos": null,
     "reposts": null
@@ -38,12 +38,20 @@
      "compartilhamentos": null,
      "reposts": null,
      "em": "2026-10-08T17:32:16+00:00"
+    },
+    {
+     "views": null,
+     "curtidas": 1576,
+     "comentarios": 66,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-09T16:37:43+00:00"
     }
    ],
-   "ultima_coleta": "2026-10-08T17:32:16+00:00",
-   "ultima_tentativa": "2026-10-08T17:32:16+00:00",
+   "ultima_coleta": "2026-10-09T16:37:43+00:00",
+   "ultima_tentativa": "2026-10-09T16:37:43+00:00",
    "erro": null,
-   "seguidores": 54364
+   "seguidores": 54419
   },
   {
    "id": "DblvCJ8hW6k",
