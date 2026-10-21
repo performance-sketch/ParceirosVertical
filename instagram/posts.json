@@ -76,8 +76,8 @@
    "legenda": "Ad | One of the most unforgettable experiences we’ve ever had 🇧🇷🚁\n\nIf this is on your bucket list, you can use my code AMANDA for 5% off @vertical.rio \n.\n.\n.\n.\n.\n#rio #brasil #helicopter #helicopterrio #riodejaneiro",
    "thumb": "instagram/thumbs/DblvCJ8hW6k.jpg",
    "metricas": {
-    "views": 77486,
-    "curtidas": 1661,
+    "views": 77920,
+    "curtidas": 1664,
     "comentarios": 57,
     "compartilhamentos": null,
     "reposts": null
@@ -99,12 +99,20 @@
      "compartilhamentos": null,
      "reposts": null,
      "em": "2026-10-14T19:26:35+00:00"
+    },
+    {
+     "views": 77920,
+     "curtidas": 1664,
+     "comentarios": 57,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-21T19:39:30+00:00"
     }
    ],
-   "ultima_coleta": "2026-10-14T19:26:35+00:00",
-   "ultima_tentativa": "2026-10-14T19:26:35+00:00",
+   "ultima_coleta": "2026-10-21T19:39:30+00:00",
+   "ultima_tentativa": "2026-10-21T19:39:30+00:00",
    "erro": null,
-   "seguidores": 54709
+   "seguidores": 54751
   },
   {
    "id": "CwX3sCyvMNW",
@@ -123,7 +131,7 @@
    "metricas": {
     "views": null,
     "curtidas": 78000,
-    "comentarios": 710,
+    "comentarios": 709,
     "compartilhamentos": null,
     "reposts": null
    },
@@ -146,12 +154,20 @@
      "compartilhamentos": null,
      "reposts": null,
      "em": "2026-10-14T19:26:41+00:00"
+    },
+    {
+     "views": null,
+     "curtidas": 78000,
+     "comentarios": 709,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-21T19:39:35+00:00"
     }
    ],
-   "ultima_coleta": "2026-10-14T19:26:41+00:00",
-   "ultima_tentativa": "2026-10-14T19:26:41+00:00",
+   "ultima_coleta": "2026-10-21T19:39:35+00:00",
+   "ultima_tentativa": "2026-10-21T19:39:35+00:00",
    "erro": null,
-   "seguidores": 634655
+   "seguidores": 633967
   },
   {
    "id": "DGDqt_upyhu",
@@ -193,12 +209,20 @@
      "compartilhamentos": null,
      "reposts": null,
      "em": "2026-10-14T19:26:49+00:00"
+    },
+    {
+     "views": null,
+     "curtidas": 14000,
+     "comentarios": 349,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-10-21T19:39:42+00:00"
     }
    ],
-   "ultima_coleta": "2026-10-14T19:26:49+00:00",
-   "ultima_tentativa": "2026-10-14T19:26:49+00:00",
+   "ultima_coleta": "2026-10-21T19:39:42+00:00",
+   "ultima_tentativa": "2026-10-21T19:39:42+00:00",
    "erro": null,
-   "seguidores": 1730176
+   "seguidores": 1729056
   }
  ]
 }
