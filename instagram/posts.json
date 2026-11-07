@@ -8,7 +8,7 @@
    "tipo": "Carrossel",
    "cadastrado_em": "2026-10-07T18:08:10+00:00",
    "cadastrado_por": "verticalrio",
-   "status": "atualizado",
+   "status": "erro_coleta",
    "perfil": "amandaastor_",
    "nome": "Amanda Astor | Life in Brasil 🇧🇷",
    "publicado_em": "2026-08-10",
@@ -73,8 +73,8 @@
     }
    ],
    "ultima_coleta": "2026-10-30T23:49:35+00:00",
-   "ultima_tentativa": "2026-10-30T23:49:35+00:00",
-   "erro": null,
+   "ultima_tentativa": "2026-11-07T01:47:10+00:00",
+   "erro": "bloqueado pelo Instagram (HTTP 200)",
    "seguidores": 54690
   },
   {
