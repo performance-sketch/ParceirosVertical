@@ -8,7 +8,7 @@
    "tipo": "Carrossel",
    "cadastrado_em": "2026-10-07T18:08:10+00:00",
    "cadastrado_por": "verticalrio",
-   "status": "erro_coleta",
+   "status": "atualizado",
    "perfil": "amandaastor_",
    "nome": "Amanda Astor | Life in Brasil 🇧🇷",
    "publicado_em": "2026-08-10",
@@ -70,12 +70,20 @@
      "compartilhamentos": null,
      "reposts": null,
      "em": "2026-10-30T23:49:35+00:00"
+    },
+    {
+     "views": null,
+     "curtidas": 1582,
+     "comentarios": 66,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-11-07T08:30:29+00:00"
     }
    ],
-   "ultima_coleta": "2026-10-30T23:49:35+00:00",
-   "ultima_tentativa": "2026-11-07T01:47:10+00:00",
-   "erro": "bloqueado pelo Instagram (HTTP 200)",
-   "seguidores": 54690
+   "ultima_coleta": "2026-11-07T08:30:29+00:00",
+   "ultima_tentativa": "2026-11-07T08:30:29+00:00",
+   "erro": null,
+   "seguidores": 54888
   },
   {
    "id": "DblvCJ8hW6k",
