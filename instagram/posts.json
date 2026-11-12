@@ -93,7 +93,7 @@
    "tipo": "Reel",
    "cadastrado_em": "2026-10-07T18:13:05+00:00",
    "cadastrado_por": "verticalrio",
-   "status": "atualizado",
+   "status": "indisponivel",
    "perfil": "amandaastor_",
    "nome": "Amanda Astor | Life in Brasil 🇧🇷",
    "publicado_em": "2026-08-03",
@@ -150,7 +150,7 @@
     }
    ],
    "ultima_coleta": "2026-11-05T00:13:41+00:00",
-   "ultima_tentativa": "2026-11-05T00:13:41+00:00",
+   "ultima_tentativa": "2026-11-12T03:15:55+00:00",
    "erro": null,
    "seguidores": 54829
   },
@@ -218,12 +218,20 @@
      "compartilhamentos": null,
      "reposts": null,
      "em": "2026-11-05T00:13:47+00:00"
+    },
+    {
+     "views": null,
+     "curtidas": 78000,
+     "comentarios": 709,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-11-12T03:16:01+00:00"
     }
    ],
-   "ultima_coleta": "2026-11-05T00:13:47+00:00",
-   "ultima_tentativa": "2026-11-05T00:13:47+00:00",
+   "ultima_coleta": "2026-11-12T03:16:01+00:00",
+   "ultima_tentativa": "2026-11-12T03:16:01+00:00",
    "erro": null,
-   "seguidores": 634269
+   "seguidores": 636011
   },
   {
    "id": "DGDqt_upyhu",
@@ -233,7 +241,7 @@
    "tipo": "Reel",
    "cadastrado_em": "2026-10-07T18:26:24+00:00",
    "cadastrado_por": "verticalrio",
-   "status": "atualizado",
+   "status": "indisponivel",
    "perfil": "caiotravels",
    "nome": "CAIO RAMON l DICAS DE VIAGEM l TRAVEL",
    "publicado_em": "2025-02-14",
@@ -292,7 +300,7 @@
     }
    ],
    "ultima_coleta": "2026-11-05T00:13:53+00:00",
-   "ultima_tentativa": "2026-11-05T00:13:53+00:00",
+   "ultima_tentativa": "2026-11-12T03:16:04+00:00",
    "erro": null,
    "seguidores": 1708507
   }
