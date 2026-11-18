@@ -101,15 +101,15 @@
    "tipo": "Reel",
    "cadastrado_em": "2026-10-07T18:13:05+00:00",
    "cadastrado_por": "verticalrio",
-   "status": "indisponivel",
+   "status": "atualizado",
    "perfil": "amandaastor_",
    "nome": "Amanda Astor | Life in Brasil 🇧🇷",
    "publicado_em": "2026-08-03",
    "legenda": "Ad | One of the most unforgettable experiences we’ve ever had 🇧🇷🚁\n\nIf this is on your bucket list, you can use my code AMANDA for 5% off @vertical.rio \n.\n.\n.\n.\n.\n#rio #brasil #helicopter #helicopterrio #riodejaneiro",
    "thumb": "instagram/thumbs/DblvCJ8hW6k.jpg",
    "metricas": {
-    "views": 82563,
-    "curtidas": 1666,
+    "views": 83433,
+    "curtidas": 1672,
     "comentarios": 57,
     "compartilhamentos": null,
     "reposts": null
@@ -155,12 +155,20 @@
      "compartilhamentos": null,
      "reposts": null,
      "em": "2026-11-05T00:13:41+00:00"
+    },
+    {
+     "views": 83433,
+     "curtidas": 1672,
+     "comentarios": 57,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-11-18T11:45:17+00:00"
     }
    ],
-   "ultima_coleta": "2026-11-05T00:13:41+00:00",
-   "ultima_tentativa": "2026-11-15T05:46:32+00:00",
+   "ultima_coleta": "2026-11-18T11:45:17+00:00",
+   "ultima_tentativa": "2026-11-18T11:45:17+00:00",
    "erro": null,
-   "seguidores": 54829
+   "seguidores": 56158
   },
   {
    "id": "CwX3sCyvMNW",
@@ -249,7 +257,7 @@
    "tipo": "Reel",
    "cadastrado_em": "2026-10-07T18:26:24+00:00",
    "cadastrado_por": "verticalrio",
-   "status": "indisponivel",
+   "status": "atualizado",
    "perfil": "caiotravels",
    "nome": "CAIO RAMON l DICAS DE VIAGEM l TRAVEL",
    "publicado_em": "2025-02-14",
@@ -305,12 +313,20 @@
      "compartilhamentos": null,
      "reposts": null,
      "em": "2026-11-05T00:13:53+00:00"
+    },
+    {
+     "views": null,
+     "curtidas": 14000,
+     "comentarios": 349,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-11-18T11:45:28+00:00"
     }
    ],
-   "ultima_coleta": "2026-11-05T00:13:53+00:00",
-   "ultima_tentativa": "2026-11-15T05:46:35+00:00",
+   "ultima_coleta": "2026-11-18T11:45:28+00:00",
+   "ultima_tentativa": "2026-11-18T11:45:28+00:00",
    "erro": null,
-   "seguidores": 1708507
+   "seguidores": 1712137
   }
  ]
 }
