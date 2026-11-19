@@ -242,12 +242,20 @@
      "compartilhamentos": null,
      "reposts": null,
      "em": "2026-11-12T03:16:01+00:00"
+    },
+    {
+     "views": null,
+     "curtidas": 78000,
+     "comentarios": 709,
+     "compartilhamentos": null,
+     "reposts": null,
+     "em": "2026-11-19T10:00:17+00:00"
     }
    ],
-   "ultima_coleta": "2026-11-12T03:16:01+00:00",
-   "ultima_tentativa": "2026-11-12T03:16:01+00:00",
+   "ultima_coleta": "2026-11-19T10:00:17+00:00",
+   "ultima_tentativa": "2026-11-19T10:00:17+00:00",
    "erro": null,
-   "seguidores": 636011
+   "seguidores": 638330
   },
   {
    "id": "DGDqt_upyhu",
